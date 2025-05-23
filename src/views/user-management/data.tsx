@@ -10,14 +10,6 @@ import {
     cilPeople,
     cilSync,
     cilFilter,
-    cilDataTransferDown,
-    cilDataTransferUp,
-    cilArrowRight,
-    cilArrowLeft,
-    cilChart,
-    cilLan,
-    cilMemory,
-    cilUserPlus,
     cilDescription
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react-pro'
@@ -129,7 +121,7 @@ import {
 } from '@ant-design/icons';
 import { Badge, Tooltip, Switch, Tag } from 'antd';
 const usersData = {
-    nav_menu: async (item: TypePermissions, itemContext: any) => {
+    nav_menu: async (itemContext: any) => {
         let allMenuItems: MenuItem[] = [
             {
                 component: CNavItem,
@@ -169,10 +161,7 @@ const usersData = {
                             color: '',
                             text: <Badge
                                 className="site-badge-count-109"
-                                // count={`${itemContext?.nofDep > 999 ? '999+' : itemContext?.nofDep} / ${itemContext?.nofPendingDep > 999 ? '999+' : itemContext?.nofPendingDep}`}
                                 count={itemContext?.nofDep > 999 ? <Tag>999+ / {itemContext?.nofPendingDep > 999 ? '999+' : itemContext?.nofPendingDep}</Tag> : <Tag>{itemContext?.nofDep} / {itemContext?.nofPendingDep > 999 ? '999+' : itemContext?.nofPendingDep}</Tag>}
-                                title={`${itemContext?.nofDep} / ${itemContext?.nofPendingDep}`}
-                                // style={{ backgroundColor: '#1d3d65', boxShadow: "unset" }}
                             />
                         },
                     },
@@ -192,8 +181,6 @@ const usersData = {
                                 <Badge
                                     className="site-badge-count-109"
                                     count={itemContext?.nofWit > 999 ? <Tag>999+ / {itemContext?.recordsPandingWithdraws > 999 ? '999+' : itemContext?.recordsPandingWithdraws}</Tag> : <Tag>{itemContext?.nofWit} / {itemContext?.recordsPandingWithdraws > 999 ? '999+' : itemContext?.recordsPandingWithdraws}</Tag>}
-                                    title={`${itemContext?.nofWit} / ${itemContext?.recordsPandingWithdraws}`}
-                                // style={{ backgroundColor: '#1d3d65', boxShadow: "unset" }}
                                 />
 
                             </>

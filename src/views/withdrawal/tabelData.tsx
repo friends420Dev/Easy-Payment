@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { getToken } from "../../Token";
 import {
-  
+
     CSmartTable
 } from '@coreui/react-pro'
 import { Tabs, Divider, message, Card, Tooltip, Flex, Button } from 'antd';
@@ -93,7 +93,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 return '#108ee9'
         }
     }
-  
+
     const getBgTags = (status: any) => {
         switch (status) {
 
@@ -132,7 +132,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 return '#1677ff'
             case "inq":
                 return '#531dab'
-            
+
 
             default:
                 return ''
@@ -214,7 +214,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 error('Copied Something went wrong.');
             });
     };
-   
+
     function formatAccnumID(numberAcc: any) {
         if (numberAcc?.length < 9) {
             return `${!numberAcc ? t("No data") : `xx ${numberAcc}`}`;
@@ -275,7 +275,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
         } else if (txt == "อนุมัติถอน รอดำเนินการ") {
             t = `#57b04e`
         } else if (txt == "FTOT" || txt == "FTOB") {
-             t = '#f50'
+            t = '#f50'
         } else {
             t = '#f50'
         }
@@ -312,12 +312,12 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                         </td>
                     ),
                     remark: (item: Item) => (
-                        <td  title={item?.remark} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.remark, item)}>
+                        <td title={item?.remark} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.remark, item)}>
                             {item?.remark ? <span >{item?.remark}</span> : <em style={{ color: "#88888880" }}>{t("No data")}</em>}
                         </td>
                     ),
                     nodere: (item: Item) => (
-                        <td  style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.nodere, item)}>
+                        <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.nodere, item)}>
                             <span style={{ color: `${funcColorNodere(item?.nodere, item?.status)}` }}>
                                 {funcTxtNodere(item?.nodere, item?.status)}
                             </span>
@@ -326,7 +326,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                     ),
                     amount: (item: Item) => (
                         <td onClick={(e: any) => handleOnclick(item)} style={{ fontWeight: "700", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <span style={{ color: `${item?.status == "success" ? '#39f': getColorTags(item?.status)}` }}>{Intl.NumberFormat().format(item?.amount)}.-</span>
+                            <span style={{ color: `${item?.status == "success" ? '#39f' : getColorTags(item?.status)}` }}>{Intl.NumberFormat().format(item?.amount)}.-</span>
                         </td>
                     ),
                     BankAccount: (item: Item) => (
@@ -347,12 +347,12 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                     ),
                     Advanced: (item: Item) => (
                         <td onClick={() => getStatusTransfer(item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <Tooltip title={`${item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success") ? '': "เช็คสถานะการโอนเงิน"}`}><Button disabled={item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success")} shape="circle" icon={<FileDoneOutlined />} /></Tooltip>
+                            <Tooltip title={`${item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success") ? '' : "เช็คสถานะการโอนเงิน"}`}><Button disabled={item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success")} shape="circle" icon={<FileDoneOutlined />} /></Tooltip>
                         </td>
                     ),
                     created_at: (item: Item) => (
                         <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={(e: any) => handleCopy(item?.created_at, item)}>
-                            <Tooltip  title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
+                            <Tooltip title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
                         </td>
                     ),
 
@@ -371,13 +371,17 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                     bordered: true,
                     borderless: false,
                 }}
-                onActivePageChange={(page) => itemContext?.setActivePageWit(page)}
+                onActivePageChange={(page) => {
+                    itemContext?.setActivePageWit(page)
+                    itemContext?.setLoadding(true);
+                    itemContext?.setOpenUpdate(true)
+                }}
                 onColumnFilterChange={(filter) => {
-                    itemContext?.setActivePageWit(itemContext?.activePageWit)
+                    itemContext?.setActivePageWit(1)
                     setColumnFilter(filter)
                 }}
                 onItemsPerPageChange={(pageSize) => {
-                    itemContext?.setActivePageWit(itemContext?.activePageWit)
+                    itemContext?.setActivePageWit(1)
                     itemContext?.setItemsPerPageWit(pageSize)
                 }}
                 onSorterChange={(value: any) => setColumnSorter(value)}

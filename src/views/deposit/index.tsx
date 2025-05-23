@@ -3,37 +3,14 @@ import { Tabs, Statistic, message, Divider, Card, Tag, Tooltip, Input, Select, R
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
 
 import {
-    CAvatar,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardSubtitle,
-    CCardTitle,
     CCol,
-    CDropdown,
-    CDropdownItem,
-    CDropdownMenu,
-    CDropdownToggle,
-    CInputGroup,
-    CInputGroupText,
     CRow,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CLoadingButton,
     CModalFooter,
     CModalBody,
     CModalTitle,
-    CBadge,
     CModalHeader,
     CSmartTable,
-    CCollapse,
     CModal,
-    CFormInput,
-    CFormSelect,
-    CDatePicker,
     CMultiSelect
 } from '@coreui/react-pro'
 import { CIcon } from '@coreui/icons-react';
@@ -51,6 +28,7 @@ import { CSmartPagination } from '@coreui/react-pro'
 import { LoadingOutlined, CloseOutlined, SyncOutlined, ClockCircleOutlined, CalendarOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2'
 import Apiauth from 'src/api/Apiauth';
+import { TableTableSearch } from '../withdrawal/tableDataSearch';
 
 import { getToken } from "../../Token";
 import type { TabsProps, TableProps } from 'antd';
@@ -254,7 +232,7 @@ export const ModelDepositPeddingDetails = ({ setVisible2, visible2, data, t, con
             return t("Nodata");
         }
         const members: any[] = itemContext?.stateMember || [];
-        const filteredMembers:any = members?.filter?.(
+        const filteredMembers: any = members?.filter?.(
             (user: any) => user?.bankAccountNumber === acc
         );
         if (filteredMembers?.length === 0) {
@@ -869,31 +847,27 @@ const Deposit = () => {
                 })
         }
     }
-    useEffect(() => {
-        const fetchData = () => {
-            itemContext?.get_data_deposit?.()
-            itemContext?.getAllMembers?.()
-        };
-        fetchData?.()
-    }, [])
+
     const onChange = (key: string) => {
         setTabActive(key)
         itemContext?.setActivePage(1)
-        itemContext?.get_data_deposit?.()
+        itemContext?.setOpenUpdate(true)
     };
-
     const [handleName, setHandleName]: any = useState<any>("ref")
     const [handleTypeInput, setHandleTypeInput]: any = useState<any>("search")
     const [inputValue, setInputValue] = useState('');
     const onSearchselect = (event: any) => {
         setHandleName(event)
     }
-    const [xClose, setXClose] = useState<boolean>(false)
+    const [xClose, setXClose] = useState<boolean>(false);
+    const [tableDataSearch, setTableDataSearch] = useState<any | []>([])
+    const [showTableSearch, setShowTableSearch] = useState<boolean>(false);
+
     const clearInput = () => {
         setInputValue('');
         setXClose(false)
         itemContext?.setActivePage?.(1)
-        itemContext?.get_data_deposit?.()
+        itemContext?.setOpenUpdate(true)
     };
     const onInputChange = (event: any) => {
         setInputValue(event.target.value);
@@ -926,13 +900,11 @@ const Deposit = () => {
             Apiauth.searchTransaction({ ...item, type: "deposit" })
                 .then((res) => {
                     if (res?.data?.success == true) {
-                        setXClose(true)
+                        setXClose(true);
+                        setShowTableSearch(true)
                         setTimeout(() => {
                             itemContext?.setLoadding(false)
-                            itemContext?.setIsDataItemDeposit(res?.data?.transaction?.rows)
-                            itemContext?.setIsDataItemPendingDeposit(res?.data?.transaction?.rows)
-                            itemContext?.setRecords(res?.data?.transaction?.count)
-                            itemContext?.setRecordsPandingDeposit(res?.data?.transaction?.count);
+                            setTableDataSearch(res?.data?.transaction)
                         }, 1000)
                     } else {
                         itemContext?.setLoadding(false)
@@ -975,6 +947,124 @@ const Deposit = () => {
             />
         </>
     );
+    const getBgTags = (status: any) => {
+        switch (status) {
+
+            case "verification":
+                return '#e6f4ff'
+            case "rejected":
+                return '#fff2f0'
+            case "cancel":
+                return '#fff2f0'
+            case "reviewing":
+                return '#fffbe6'
+            case "pending":
+                return '#fffbe6'
+            case "processing":
+                return '#e6f4ff'
+            case "inq":
+                return '#f9f0ff'
+            case "inq_manual":
+                return '#fff2e8'
+            default:
+                return ''
+        }
+    }
+    const getBadgeTags = (status: any) => {
+        switch (status) {
+            case 'success':
+                return 'rgb(82, 196, 26)'
+            case 'rejected':
+                return 'rgb(245, 34, 45)'
+            case 'processing':
+                return '#1677ff'
+            case 'inq_manual':
+                return '#f50'
+            case 'pending':
+                return '#faad14'
+            case 'cancel':
+                return 'rgb(245, 34, 45)'
+            case "confirm":
+                return 'green'
+            case "inq":
+                return 'rgb(103, 58, 183)'
+            case "withdrawal_confirm_queued":
+                return '#3b5999'
+            // return '#673ab7'
+
+            default:
+                return '#108ee9'
+        }
+    }
+    const getColorTags = (status: any) => {
+        switch (status) {
+
+            case "verification":
+                return '#1677ff'
+            case "rejected":
+                return '#ff4d4f'
+            case "cancel":
+                return '#ff4d4f'
+            case "reviewing":
+                return '#faad14'
+            case "pending":
+                return '#faad14'
+            case "processing":
+                return '#1677ff'
+            case "inq":
+                return '#531dab'
+            case "inq_manual":
+                return '#d4380d'
+            default:
+                return ''
+        }
+    }
+    function funcColorNodere(txt: any, status: any) {
+        let t;
+        if (txt == "ถอนโดยระบบออโต้") {
+            t = '#2db7f5'
+        } else if (txt == "PayoneX") {
+            t = `#41e197`
+        } else if (txt == "ถอนแบบระบบ manual กรุณาตรวจสอบ และ ยืนยันการถอนอีกครั้ง") {
+            t = '#f50'
+        } else if (txt == "อนุมัติถอน รอดำเนินการ") {
+            t = `#57b04e`
+        } else {
+            t = '#f50'
+        }
+        return t
+    }
+    function getTargetWord(txt: any) {
+        const msg: any = txt;
+        if (!msg) {
+            return null
+        }
+        const targetWord: any = msg?.split(" ").pop();
+        return targetWord
+    }
+    function extractWithdrawalInfo(text: any) {
+        const prefix = 'รอถอน manual โดย แอดมิน';
+        if (text.startsWith(prefix)) {
+            return `แอดมิน ${getTargetWord(text)} กำลังทำรายการ...`;
+        } else {
+            return <em style={{ color: "#88888880" }}>{t("No data")}</em>;
+        }
+    }
+    function funcTxtNodere(txt: any, status: any) {
+        let tx;
+        if (txt == "ถอนโดยระบบออโต้") {
+            tx = 'Auto System'
+        } else if (txt == "PayoneX") {
+            tx = `Gateway ( ${txt} )`
+        } else if (txt == "ถอนแบบระบบ manual กรุณาตรวจสอบ และ ยืนยันการถอนอีกครั้ง") {
+            tx = 'Manual System'
+        } else if (txt == "อนุมัติถอน รอดำเนินการ") {
+            tx = `Approved (${status})`
+        } else {
+            tx = extractWithdrawalInfo(txt)
+        }
+        return tx
+    }
     const operations = <>
         <div className='col-sm-auto col-md-100 '>
             <p></p>
@@ -987,20 +1077,7 @@ const Deposit = () => {
                 key: '1',
                 label: `${t("Deposit List")} : ( ${Intl.NumberFormat().format(itemContext?.loadding ? 0 : itemContext?.records)} )`,
                 children: <>
-                    {itemContext?.records == 0 ? <>
-                        <Card
-                            style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                            loading={itemContext?.loadding}
-
-                            styles={{ header: { display: "" } }}
-                            children={<Table
-                                style={{ marginTop: 8 }}
-                                columns={columnsEmpty}
-                            />}
-                        />
-                    </> : <>
-                        <TabelData handleOnclick={handleOnclick} t={t} itemContext={itemContext} loadding={itemContext?.loadding} setVisible2={setVisible2} setVisible={setVisible} visible={visible} visible2={visible2} setIsData={setIsData} />,
-                    </>}
+                    <TabelData handleOnclick={handleOnclick} t={t} itemContext={itemContext} loadding={itemContext?.loadding} setVisible2={setVisible2} setVisible={setVisible} visible={visible} visible2={visible2} setIsData={setIsData} />
                 </>
             },
             {
@@ -1020,7 +1097,10 @@ const Deposit = () => {
                         activePage: itemContext?.activePage,
                         pages: itemContext?.recordsPandingDeposit > 0 ? Math.ceil(itemContext?.recordsPandingDeposit / itemContext?.itemsPerPage) : 1,
                     }}
-                    onActivePageChange={(page) => itemContext?.setActivePage(page)}
+                    onActivePageChange={(page) => {
+                        itemContext?.setOpenUpdate(true)
+                        itemContext?.setActivePage(page)
+                    }}
                     onColumnFilterChange={(filter) => {
                         itemContext?.setActivePage(itemContext?.activePage)
                         setColumnFilter(filter)
@@ -1095,67 +1175,46 @@ const Deposit = () => {
                 />,
             },
         ];
-        if (itemContext?.records == 0 && itemContext?.recordsPandingDeposit == 0) {
-            return <>
-                <Card
-                    style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                    extra={<Search
-                        suffix={suffix}
-                        id='myInput'
-                        value={inputValue}
-                        className='w-100'
-                        type={`${handleTypeInput}`}
-                        loading={itemContext?.loadding}
-                        disabled={itemContext?.loadding}
-                        name={`${handleName}`}
-                        placeholder="Search..."
-                        onChange={onInputChange}
-                        onSearch={onSearch}
-                        addonBefore={selectAfter} />}
-                    // loading={itemContext?.loadding}
-                    title={operations}
-                    styles={{ header: { display: "" } }}
-                    children={<CSmartTable
-                        className='mt-3 aninationleft'
-                        tableBodyProps={{
-                            className: 'align-middle text-truncate text-center  font-500',
-                        }}
-                        tableProps={{
-                            className: 'add-this-class text-truncate text-center aninationleft',
-                            responsive: true,
-                            striped: false,
-                            hover: true,
-                            bordered: true,
-                            borderless: false,
-                        }} columns={columns} />}
-                />
-            </>
-        } else {
-            return <>
-                <Card
-                    style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                    extra={<Search
-                        suffix={suffix}
-                        id='myInput'
-                        value={inputValue}
-                        className='w-100'
-                        type={`${handleTypeInput}`}
-                        loading={itemContext?.loadding}
-                        disabled={itemContext?.loadding}
-                        name={`${handleName}`}
-                        placeholder="Search..."
-                        onChange={onInputChange}
-                        onSearch={onSearch}
-                        addonBefore={selectAfter} />}
-                    // loading={itemContext?.loadding}
-                    title={operations}
-                    styles={{ header: { display: "" } }}
-                    children={<>
-                        <Tabs className='col-sm-auto' defaultActiveKey="1" items={items} onChange={onChange} />
-                    </>}
-                />
-            </>
-        }
+        return <>
+            <Card
+                style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
+                extra={<Search
+                    suffix={suffix}
+                    id='myInput'
+                    value={inputValue}
+                    className='w-100'
+                    type={`${handleTypeInput}`}
+                    loading={itemContext?.loadding}
+                    disabled={itemContext?.loadding}
+                    name={`${handleName}`}
+                    placeholder="Search..."
+                    onChange={onInputChange}
+                    onSearch={onSearch}
+                    addonBefore={selectAfter} />}
+                // loading={itemContext?.loadding}
+                title={operations}
+                styles={{ header: { display: "" } }}
+                children={<>
+                    {!showTableSearch && <Tabs className='col-sm-auto' defaultActiveKey="1" items={items} onChange={onChange} />}
+                    {showTableSearch && <TableTableSearch
+                        data={tableDataSearch}
+                        handleCopy={handleCopy}
+                        t={t}
+                        getBgTags={getBgTags}
+                        getColorTags={getColorTags}
+                        getBadge_bank={getBadge_bank}
+                        formatAccnumID={formatAccnumID}
+                        getBadgeTags={getBadgeTags}
+                        funcColorNodere={funcColorNodere}
+                        funcTxtNodere={funcTxtNodere}
+                        clearInput={clearInput}
+                        loadding={itemContext?.loadding}
+                        setShowTableSearch={setShowTableSearch}
+                    />}
+
+                </>}
+            />
+        </>
     }
     function MainModel(isData: any) {
         if (!isData) {

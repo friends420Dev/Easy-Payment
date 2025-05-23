@@ -58,14 +58,11 @@ type Props = {
     t?: any
     handleCloseModel?: any
     itemContext?: any
-}
-type Model_2 = {
-    setVisible2?: any
-    visible2?: any
-    handleCloseModel?: any
+    getBadgeStatus?:any
 }
 
-export const Model_1 = ({ setVisible, visible, data, t, itemContext }: Props) => {
+
+export const Model_1 = ({ setVisible, visible, data, t, itemContext, getBadgeStatus }: Props) => {
     let Admin = getUserID()
     // console.log(data)
     if (data == "" || !data) {
@@ -226,12 +223,12 @@ export const Model_1 = ({ setVisible, visible, data, t, itemContext }: Props) =>
 
                         <tr className="trofaccount">
                             <td className="headeraccount me-3">{t("Status")} :</td>
-                            <td className="item-list" onClick={() => handleCopy(data?.userStatus)}>{!data?.userStatus ? t("No data") : data?.userStatus == 1 ? t("Active") : t("Inactive")}</td>
+                            <td className="item-list" onClick={() => handleCopy(data?.userStatus)}><Tag color={getBadgeStatus(data?.userStatus)}>{data?.userStatus == 1 ? `${t("Active")}` : `${t("Inactive")}`}</Tag></td>
                         </tr>
 
                         <tr className="trofaccount">
                             <td className="headeraccount me-3">{t("Created At")} :</td> {" "}
-                            <td className="item-list" onClick={() => handleCopy(data?.created_at)}>{moment(data?.created_at).format('DD/MM/YYYY HH:mm:ss')}</td>
+                            <td className="item-list" onClick={() => handleCopy(data?.created_at)}><Tooltip title={moment(data?.created_at).format('DD/MM/YYYY HH:mm:ss')}>{FormatTimeAgo(data?.created_at)}</Tooltip></td>
                         </tr>
 
                     </tbody>
@@ -277,30 +274,7 @@ export const Model_1 = ({ setVisible, visible, data, t, itemContext }: Props) =>
             </CModal></>
     );
 }
-export const Model_2 = ({ setVisible2, visible2, handleCloseModel }: Model_2) => {
-    return (
-        <>
-            <CModal
-                alignment="top"
-                size="lg"
-                visible={visible2}
-                onClose={() => setVisible2(!visible2)}
-                aria-labelledby="VerticallyCenteredExample"
-            >
-                <CModalHeader>
-                    <CModalTitle >รายละเอียดข้อมูลสมาชิก</CModalTitle>
-                </CModalHeader>
-                <CModalBody>
-                    Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in,
-                    egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                </CModalBody>
-                <CModalFooter>
-                    <CButton onClick={() => setVisible2(!visible2)} color="primary">Save changes</CButton>
-                </CModalFooter>
-            </CModal>
-        </>
-    )
-}
+
 
 
 export const fetchData = async (
@@ -923,8 +897,7 @@ const Member = () => {
         <>
             {contextHolder2}
             {contextHolder}
-            <Model_1 setVisible={setVisible} visible={visible} data={dataEdit} t={t} itemContext={itemContext} />
-            <Model_2 setVisible2={setVisible2} visible2={visible2} handleCloseModel={handleCloseModel} />
+            {visible && <Model_1 setVisible={setVisible} visible={visible} getBadgeStatus={getBadgeStatus}  data={dataEdit} t={t} itemContext={itemContext} />}
             {MainContainer(isDataItem || [])}
         </>);
 }

@@ -1,11 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'node:path'
-import autoprefixer from 'autoprefixer'
+
+
+import { defineConfig, loadEnv, UserConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path'; // You might need this if you uncomment the alias section
 import mdx from '@mdx-js/rollup'
-// // https://vitejs.dev/config/
-export default defineConfig({
-   
+
+export default defineConfig(({ mode }): UserConfig => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const API_URL: string = `${env.VITE_APP_BASE_NAME}`;
+  const PORT: string = '3000';
+
+  return {
     base: './',
     build: {
       outDir: 'build',
@@ -13,25 +18,7 @@ export default defineConfig({
         include: ["tailwind.config.js", "node_modules/**"],
       },
     },
-    // optimizeDeps: {
-    //   include: ["tailwind-config"],
-    // },
-    // css: {
-    //   postcss: {
-    //     plugins: [
-    //       autoprefixer({}), // add options if needed
-    //     ],
-    //   },
-    //   preprocessorOptions: {
-    //     scss: {
-    //       quietDeps: true,
-    //     },
-    //   },
-    // },
-    // plugins: [
-      
-    //   react()
-    // ],
+
     plugins: [
       { enforce: 'pre', ...mdx() },
       react({ include: /\.(mdx|js|jsx|ts|tsx)$/ }),
@@ -51,6 +38,5 @@ export default defineConfig({
         // https://vitejs.dev/config/server-options.html
       },
     },
-  
-})
-
+  }
+});

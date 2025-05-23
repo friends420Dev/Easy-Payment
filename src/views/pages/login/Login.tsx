@@ -322,8 +322,6 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
               setLang(false)
             }, 1500)
           }
-
-
         } else {
           // console.log(data)
           setLang(false)
@@ -343,43 +341,9 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
     // auth.signInWithusernameAndPassword(username, password).then(
     //   user => {console.log(user);routeChange()}).catch(err => {console.log(err);setError(err.message)})
   }
-
-  function downloadGoogleAuthenticator() {
-    const userAgent = navigator.userAgent;
-
-    const isMobile = /Android|iPhone|iPad|iPod/.test(userAgent);
-    const isPC = !isMobile;
-
-    if (isMobile) {
-      // ตรวจสอบว่าเป็น Android หรือ iOS
-      const isAndroid = /Android/.test(userAgent);
-      const isIOS = /iPhone|iPad|iPod/.test(userAgent);
-
-      if (isAndroid) {
-        // Redirect ไปยัง Google Play Store
-        window.location.href = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2";
-      } else if (isIOS) {
-        // Redirect ไปยัง App Store
-        window.location.href = "https://apps.apple.com/us/app/google-authenticator/id388497605";
-      } else {
-        // ไม่พบ platform ที่รองรับ
-        alert("ไม่พบ platform ที่รองรับ");
-      }
-    } else if (isPC) {
-      // Redirect ไปยังหน้าดาวน์โหลดสำหรับ PC (ถ้ามี)
-      // ในกรณีนี้ Google Authenticator ไม่มีเวอร์ชั่นสำหรับ PC
-      alert("Google Authenticator ไม่มีเวอร์ชั่นสำหรับ PC");
-      // หรืออาจ redirect ไปยังหน้าเว็บที่แนะนำ alternatives อื่นๆ
-    } else {
-      // ไม่พบ platform ที่รองรับ
-      alert("ไม่พบ platform ที่รองรับ");
-    }
-  }
-
   const onChange = (key: string) => {
     console.log(key);
   };
-
   const success2 = (msg: any) => {
     messageApi.open({
       type: 'success',
@@ -392,15 +356,7 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
       content: `${msg}`,
     });
   };
-  const handleCopy = (text: any) => {
-    navigator?.clipboard?.writeText(text)
-      .then(() => {
-        success2('Copied : ' + text);
-      })
-      .catch(() => {
-        error2('Copied Something went wrong.');
-      });
-  };
+ ;
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -421,7 +377,6 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
                 readOnly
               />
             </Tooltip>
-
           </div>
         </div>
       </>
@@ -495,7 +450,9 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
                         <p className="mb-4 text-muted op-7 fw-normal text-center">
                           Welcome back admin!
                         </p>
+
                         <p className="text-body-secondary">Sign In to your account</p>
+
                         <CInputGroup className="mb-3">
                           <CInputGroupText>
                             <CIcon icon={cilUser} />
@@ -527,9 +484,7 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
 
                       </CForm>
                     </>}
-
                   </CCardBody>
-
                   <p className='versions text-center mb-0' style={{ display: "flex", justifyContent: "center", color: "#888", fontSize: "12px" }}>Version: {config?.version}</p>
 
                   {/* <button onClick={() => window.location.assign("http://localhost:3000/login?username=kaycha420&password=590806Abcd")}>username=nonny420&password=123456</button> */}

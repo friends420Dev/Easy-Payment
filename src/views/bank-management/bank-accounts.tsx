@@ -53,15 +53,25 @@ export const DetailsBankAcc = ({ data, t }: Props) => {
 }
 const Bank_accounts = () => {
   const { confirm } = Modal;
-  useEffect(() => {
-    const fetchData = () => {
-      itemContext?.getBankAccount?.()
-      itemContext?.getDataProfileAdmin?.()
-    };
-    fetchData?.()
-  }, [])
   const itemContext: any = useContext<any>(DataContext)
   const [messageApi, contextHolder]: any = message.useMessage();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          itemContext?.getBankAccount?.(),
+          itemContext?.getBankList?.(),
+          itemContext?.getDataProfileAdmin?.(),
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        console.log("allAppContent finally fetching data");
+      }
+    };
+    fetchData();
+  }, []);
+
 
   const { t } = useTranslation("")
   const [state, setState]: any = useState(1);
@@ -77,6 +87,7 @@ const Bank_accounts = () => {
       toast.onmouseleave = Swal.resumeTimer;
     }
   });
+
   const success = (msg: any) => {
     messageApi.open({
       type: 'success',
@@ -181,7 +192,7 @@ const Bank_accounts = () => {
       })
   }
   const showConfirm = async (item: any) => {
-    let checkTime = await bank_closed_system_maintenance(item?.data); 
+    let checkTime = await bank_closed_system_maintenance(item?.data);
     Swal.fire({
       title: "Are you sure?",
       text: checkTime ? `❌⚠️ ในช่วงเวลา 22:30 - 03:00 น.  ไม่ควรใช้ธนาคารกรุงไทย (ถอน) คุณแน่ใจที่จะเปิดใช้งาน? ❌⚠️` : `คุณต้องการ ${item?.status_bank == "Active" ? "เปิดใช้งาน" : item?.status_bank == "Inactive" ? "ปิดใช้งาน" : item?.status_bank}!`,
@@ -244,7 +255,7 @@ const Bank_accounts = () => {
       })
   }
   async function handleOnClickStatusBank(status: any, params: any) {
-    
+
     let i = {
       status: status == true ? "Active" : status == false ? "Inactive" : status?.taget?.id
     }
@@ -547,7 +558,7 @@ const Bank_accounts = () => {
         error('Copied Something went wrong.');
       });
   };
-  
+
   return (
     <>
       {contextHolder}

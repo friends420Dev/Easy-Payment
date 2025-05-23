@@ -1,14 +1,9 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { CButton, CCard, CCardBody, CCardHeader, CCardText, CCardTitle, CAvatar, CBadge, CCollapse, CSmartTable } from '@coreui/react-pro'
-import { UpdateBtn } from '../../components/updateBtn/updateBtn'
+import { CBadge, CSmartTable } from '@coreui/react-pro'
 import { DataContext } from 'src/layout/DefaultLayout'
 import { useContext } from 'react'
 import { Tooltip, message, Card, Divider, Spin } from 'antd';
-import Apibank from 'src/api/Apibank'
 import { useEffect, useReducer, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Logout, getUserID } from 'src/Token';
 import { ModelDetailsDepositManual } from '../model';
 import config from 'src/config/app.config'
 import moment from 'moment';
@@ -55,10 +50,27 @@ interface Props {
 }
 const Index = () => {
     const { t }: any = useTranslation("")
-    const itemContext: any = useContext<any | []>(DataContext)
-    const navigate: any = useNavigate()
+    const itemContext: any = useContext<any | []>?.(DataContext)
     const [messageApi, contextHolder]: any = message.useMessage();
-
+    useEffect(() => {
+        const fetchData = async () => {
+            itemContext?.setLoadding(true)
+            try {
+                await Promise.all([
+                    itemContext?.getall_Transaction_manual?.(),
+                ]);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                console.log("Bank_accounts finally fetching data");
+            }
+        };
+        fetchData();
+        const intervalId = setInterval(() => {
+            itemContext?.getall_Transaction_manual();
+        }, 1 * 60 * 1000);
+        return () => clearInterval(intervalId);
+    }, []);
     const success = (msg: any) => {
         messageApi.open({
             type: 'success',
@@ -71,7 +83,6 @@ const Index = () => {
             content: `${msg}`,
         });
     };
-    const [details, setDetails] = useState<any>([])
     const getBadge = (status: any) => {
         switch (status) {
             case 'pending': {
@@ -119,17 +130,6 @@ const Index = () => {
                 return 'primary'
         }
     }
-    const toggleDetails = (id: any) => {
-        const position: any = details.indexOf(id)
-        let newDetails: any = [...details]
-        if (position === -1) {
-            newDetails = [...details, id]
-        } else {
-            newDetails.splice(position, 1)
-        }
-        setDetails(newDetails)
-    }
-    //console.log(itemContext?.stateTransaction_manual?.data?.length) 
     const handleCopy = (text: any, data: any) => {
         if (data) {
             handleOnclick(text, data)
@@ -147,23 +147,18 @@ const Index = () => {
         if (numberAcc?.length < 9) {
             return `xxx ${numberAcc}`;
         }
-
         let length: any = numberAcc?.length;
 
         const middleFour: any = numberAcc?.slice(6, length);
 
         return `xxx ${middleFour} `;
     }
-    const [isFormatBank, setIsFormatBank] = useState<any>({})
-
     function formatBank(id: any) {
         // console.log(id)
         let bank: any = itemContext?.bankList?.data?.filter((item: any) => item?.id == id)
         var databank: any = bank[0]
         return databank?.bank_id
     }
-    //console.log(itemContext?.stateTransaction_manual)
-
     function hideLastName(fullName: any) {
         let formatName: any = removeTitle(fullName)
         const names: any = formatName?.split(' ');
@@ -209,7 +204,7 @@ const Index = () => {
             filter: true,
             _style: { width: '' },
         },
-       
+
         {
             key: 'FromAccount',
             label: t('Bank Account '),
@@ -222,7 +217,7 @@ const Index = () => {
             filter: true,
             _style: { width: '' },
         },
-        
+
         {
             key: 'status',
             label: t('Status'),
@@ -251,7 +246,6 @@ const Index = () => {
         },
     ]
     //var items: any = itemContext?.stateTransaction_manual?.data?.length < 0 ? [] : itemContext?.stateTransaction_manual?.data
-    var itemsCount: any = itemContext?.stateTransaction_manual?.data?.length;
     const [loadding, setLoadding] = useState<boolean>(true)
     const [visible, setVisible] = useState<boolean>(false)
     const [isData, setIsData]: any = useState("")
@@ -266,27 +260,26 @@ const Index = () => {
     useEffect(() => {
         const updateTransactions = () => {
             if (itemContext?.stateTransaction_manual?.data) {
-                const fiveDaysAgo = dayjs().subtract(1, 'day').startOf('day');
+                const todayStart = dayjs().startOf('day');
+                const todayEnd = dayjs().endOf('day');
+
                 const filteredTransactions = itemContext?.stateTransaction_manual?.data?.filter((transaction: Transaction) => {
                     // Use transaction_time if available, otherwise fallback to created_at
-                    const transactionDate = transaction?.transaction_time ? dayjs(transaction?.transaction_time) : dayjs(transaction?.created_at);
-                    return transactionDate.isAfter(fiveDaysAgo);
+                    const transactionDate = transaction?.transaction_time
+                        ? dayjs(transaction?.transaction_time)
+                        : dayjs(transaction?.created_at);
+
+                    return transactionDate.isSame(todayStart, 'day');
                 });
                 setRecentTransactions(filteredTransactions);
             } else {
                 setRecentTransactions([]);
             }
         };
-        updateTransactions();
-        // Real-time update mechanism (adjust interval as needed)
-        // const intervalId = setInterval(() => {
-        //     updateTransactions();
-        // }, 5000);
-
-        // return () => clearInterval(intervalId);
+        updateTransactions?.();
     }, [itemContext?.stateTransaction_manual?.data]);
-    const start = moment().subtract(1, 'days').format("YYYY-MM-DD");
-    const end = moment().subtract(0, 'days').format("YYYY-MM-DD");
+    const start = moment().subtract(0, 'days').format("YYYY-MM-DD");
+    // const end = moment().subtract(0, 'days').format("YYYY-MM-DD");
     function MainContainer(data: any[]) {
         setTimeout(() => {
             setLoadding(false)
@@ -296,10 +289,11 @@ const Index = () => {
                 <Card
                     style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
                     // extra={<Button type="dashed"><SettingOutlined className='me-1' style={{ display: "inline-flex" }} /> {`Payment Config`}</Button>}
-                    loading={loadding}
+
                     title={<></>}
                     styles={{ header: { display: "none" } }}
                     children={<CSmartTable
+                        loading={loadding}
                         className='mt-3'
                         tableBodyProps={{
                             className: 'align-middle text-truncate text-center  font-500',
@@ -318,8 +312,6 @@ const Index = () => {
             return <>
                 <Card
                     style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                    // extra={<Button type="dashed"><SettingOutlined className='me-1' style={{ display: "inline-flex" }} /> {`Payment Config`}</Button>}
-                    // loading={loadding}
                     title={<></>}
                     styles={{ header: { display: "none" } }}
                     children={<CSmartTable
@@ -341,8 +333,6 @@ const Index = () => {
                             //console.table(items)
                         }}
                         scopedColumns={{
-
-
                             typeOption: (item: any) => (
                                 <td onClick={(e) => handleOnclick(e, item)}>
                                     <CBadge color={getBadge(item?.type_option)}>{item?.type_option == "ฝาก" ? t("Deposits") : t("Withdrawals")}</CBadge>
@@ -414,15 +404,11 @@ const Index = () => {
                 />
             </>
         }
-
     }
     return (<>
         {contextHolder}
         <ModelDetailsDepositManual setVisible={setVisible} visible={visible} data={isData} t={t} config={config} itemContext={itemContext} />
-
-       
-
-        <Divider orientation="left" className='mt-0'>{t(`วันที่ ${start} - ${end} : รายการฝาก (มือ) ${recentTransactions?.length} รายการ`)}</Divider>
+        <Divider orientation="left" className='mt-0'>{t(`รายการฝาก (มือ) วันที่ ${start} -  ${recentTransactions?.length} รายการ`)}</Divider>
         {MainContainer(recentTransactions || [])}
 
     </>);

@@ -47,6 +47,7 @@ type NotificationPlacement = NotificationArgsProps['placement'];
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 import { TransferManual } from './trabsferManual';
 import TransactionSlip from './transactionSlip';
+import { TableTableSearch } from './tableDataSearch';
 const Withdrawal = () => {
     const itemContext: any = useContext<any | []>(DataContext)
     const [messageApi, contextHolder]: any = message.useMessage()
@@ -55,15 +56,12 @@ const Withdrawal = () => {
     const [visiblem2, setVisiblem2] = useState<boolean>(false)
     const [isData, setIsData] = useState<any>('')
     const [data_itmsm, setData_itmsm] = useState<any>('')
+    const [showTableSearch, setShowTableSearch] = useState<boolean>(false);
+    const [tableDataSearch, setTableDataSearch] = useState<any | []>([])
+
     const { t }: any = useTranslation("");
     const { Search } = Input;
     const { Option } = Select;
-    useEffect(() => {
-        const fetchData = () => {
-            itemContext?.get_data_wit?.()
-        };
-        fetchData?.()
-    }, [])
     const success = (msg: any) => {
         messageApi.open({
             type: 'success',
@@ -77,6 +75,7 @@ const Withdrawal = () => {
         })
     }
     const [api, contextHolderNotification] = notification.useNotification();
+
     const openNotification = (type: NotificationType, msg: any) => {
         api[type]({
             message: `Notification`,
@@ -102,37 +101,7 @@ const Withdrawal = () => {
         { key: 'created_at', },
         { key: 'Advanced', },
     ]
-    const columnsEmpty: TableProps['columns'] = [
-        {
-            title: `${t('userID')}`,
-            dataIndex: 'userID',
-            //   filters: [{ text: 'filter1', value: 'filter1' }],
-        },
-        {
-            title: `${t('Account Number')}`,
-            dataIndex: 'accNumber',
-        },
-        {
-            title: `${t('Bank')}`,
-            dataIndex: 'Bank',
-        },
-        {
-            title: `${t('Amount')}`,
-            dataIndex: 'Amount',
-        },
-        {
-            title: `${t('Note')}`,
-            dataIndex: 'Note',
-        },
-        {
-            title: `${t('Remark')}`,
-            dataIndex: 'remark',
-        },
-        {
-            title: `${t('CreatedAt')}`,
-            dataIndex: 'CreatedAt',
-        },
-    ];
+
     const transferconfirmation = (data: any) => {
         setLoadding(true)
         Apibank.transferconfirmation(data)
@@ -329,8 +298,8 @@ const Withdrawal = () => {
     }
     const onChange = (key: string) => {
         // console.log(key)
-        itemContext?.setActivePageWit?.(1)
-        itemContext?.get_data_wit()
+        itemContext?.setActivePageWit?.(1);
+        itemContext?.setOpenUpdate(true)
     };
     const [handleName, setHandleName]: any = useState<any>("ref")
     const [handleTypeInput, setHandleTypeInput]: any = useState<any>("search")
@@ -341,7 +310,8 @@ const Withdrawal = () => {
     const [xClose, setXClose] = useState<boolean>(false)
     const clearInput = () => {
         setInputValue('');
-        setXClose(false)
+        setXClose(false);
+        setShowTableSearch(false)
         itemContext?.setActivePageWit?.(1)
         itemContext?.get_data_wit()
     };
@@ -376,12 +346,10 @@ const Withdrawal = () => {
                 .then((res) => {
                     if (res?.data?.success == true) {
                         setXClose(true)
+                        setShowTableSearch(true)
                         setTimeout(() => {
-                            itemContext?.setLoadding(false)
-                            itemContext?.setIsDataItemWithdraw(res?.data?.transaction?.rows)
-                            itemContext?.setIsDataItemPendingWithdraw(res?.data?.transaction?.rows)
-                            itemContext?.setRecordsWithdraws(res?.data?.transaction?.count)
-                            itemContext?.setRecordsPandingWithdraws(res?.data?.transaction?.count)
+                            itemContext?.setLoadding(false);
+                            setTableDataSearch(res?.data?.transaction)
                         }, 1000)
                     } else {
                         itemContext?.setLoadding(false)
@@ -893,247 +861,225 @@ const Withdrawal = () => {
                 key: '2',
                 label: `${t("pending")} : ( ${itemContext?.recordsPandingWithdraws < 0 ? 0 : Intl.NumberFormat().format(itemContext?.recordsPandingWithdraws)} )`,
                 children: <>
-                    {itemContext?.recordsPandingWithdraws == 0 ? <>
-                        <Card
-                            style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                            loading={itemContext?.loadding}
-                            title={<></>}
-                            styles={{ header: { display: "none" } }}
-                            children={<Table
-                                style={{ marginTop: 8 }}
-                                columns={columnsEmpty}
-                            />}
-                        />
-                    </> : <>
-                        <CSmartTable
-                            items={itemContext?.isDataItemPendingWithdraw || []}
-                            columns={columns2}
-                            loading={itemContext?.loadding}
-                            footer={footer}
-                            itemsPerPage={itemContext?.itemsPerPageWit}
-                            itemsPerPageSelect
-                            pagination={{
-                                external: true,
-                            }}
-                            paginationProps={{
-                                activePage: itemContext?.activePageWit,
-                                pages: itemContext?.recordsPandingWithdraws > 0 ? Math.ceil(itemContext?.recordsPandingWithdraws / itemContext?.itemsPerPageWit) : 1,
-                            }}
-                            onActivePageChange={(page) => itemContext?.setActivePageWit(page)}
-                            onColumnFilterChange={(filter) => {
-                                itemContext?.setActivePageWit(itemContext?.activePageWit)
-                                setColumnFilter(filter)
-                            }}
-                            onItemsPerPageChange={(pageSize) => {
-                                itemContext?.setActivePageWit(itemContext?.activePageWit)
-                                itemContext?.setItemsPerPageWit(pageSize)
-                            }}
-                            onSorterChange={(value) => setColumnSorter(value)}
-                            tableFilter={false}
-                            scopedColumns={{
-                                member_id: (item: Item) => (
-                                    <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.member_id, item)}>
-                                        {item?.member_id}
-                                    </td>
-                                ),
-                                ref: (item: Item) => (
-                                    <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.ref, item)}>
-                                        {item?.ref || <em style={{ color: "#88888880" }}>{t("No data")}</em>}
-                                    </td>
-                                ),
-                                remark: (item: Item) => (
-                                    <td title={item?.remark} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.status, item)}>
-                                        {item?.remark ? <span className='text-danger'>{item?.remark}</span> : <em style={{ color: "#88888880" }}>{t("No data")}</em>}
-                                    </td>
-                                ),
-                                nodere: (item: Item) => (
-                                    <td title={item?.nodere} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.nodere, item)}>
-                                        <span style={{ color: `${funcColorNodere(item?.nodere, item?.status)}` }}>
-                                            {item?.nodere == 'ถอนโดยระบบออโต้' ? <span style={{ color: `${item?.status == "inq" ? '#531dab' : '#1677ff'}` }}>{item?.status == "inq" ? 'อยู่ในคิว โอนเงิน...' : 'กำลังตรวจสอบ...'}</span> : item?.nodere == 'อยู่ในคิว รอดำเนิการ...' ? 'อยู่ในคิวรอโอน' : funcTxtNodere(item?.nodere, item?.status)}
-                                        </span>
-                                    </td>
-                                ),
-                                amount: (item: Item) => (
-                                    <td onClick={(e: any) => handleCopy(item?.amount, item)} style={{ fontWeight: "700", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                                        {Intl.NumberFormat().format(item?.amount)}.-
-                                    </td>
-                                ),
-                                BankAccount: (item: Item) => (
-                                    <td onClick={(e: any) => handleCopy(item?.members?.bankId, item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                                        <b>{getBadge_bank(item?.members?.bankId)}</b>
-                                        , {formatAccnumID(item?.members?.bankAccountNumber)}<br />
-                                    </td>
-                                ),
-                                name_member: (item: Item) => (
-                                    <td onClick={() => handleCopy(item?.name_member, item)} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} >
-                                        {item?.name_member}
-                                    </td>
-                                ),
-                                status: (item: Item) => (
-                                    <td onClick={(e: any) => handleCopy(item?.status, item)} style={{ textTransform: "capitalize", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                                        <Tag icon={item?.status == "inq" ? <ClockCircleOutlined /> : item?.status == "inq_manual" ? <ClockCircleOutlined /> : <SyncOutlined spin />} color={getBadgeTags(item?.status)}><b>{getCheckStatus(item?.status)}</b></Tag>
-                                    </td>
-                                ),
-                                created_at: (item: Item) => (
-                                    <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={(e: any) => handleCopy(item?.created_at, item)}>
-                                        <Tooltip title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
-                                    </td>
-                                ),
-                                Advanced: (item: any) => {
-                                    return (
-                                        <>
-                                            <td className="py-1" style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}`, cursor: "pointer" }}>
-                                                <Flex vertical gap="small">
-                                                    {item?.status == "inq" || item?.status == "inq_manual" ? <>
-                                                        <Tooltip title={`Note: รายการค้าง 10 นาที หรือ มากกว่า ให้กด rejected รายการออกไป`} color={"red"}>
-                                                            <Button
-                                                                loading={switchLoadding2 == item?.id}
-                                                                type={item?.status == "inq" ? 'primary' : item?.status == "inq_manual" ? 'link' : 'default'}
-                                                                onClick={() => funcVerifyInfo(item)}
-                                                                style={{ borderColor: `${item?.status == "inq_manual" ? 'red' : item?.status == "inq" ? '#1890ff00' : ''}`, padding: "0px 10px", color: `${item?.status == "inq_manual" && 'red'}`, background: `${item?.status == "inq" && 'red'}` }}
-                                                            >
-                                                                {switchLoadding2 == item?.id ? " loading..." : <>{item?.status == "inq" ? <><CloseOutlined /> {"rejected"}</> : item?.status == "inq_manual" ? <><CloseOutlined /> {"rejected"}</> : item?.status}</>}
-                                                            </Button>
-                                                        </Tooltip>
-                                                        {item?.status == "inq" && <Button
-                                                            style={{ textTransform: "capitalize", padding: "0px 10px" }}
-                                                            onClick={() => Manual_QR(item)}
-                                                            className={`${highlightedTimes.includes("23.00-01.25") ? '' : 'd-none'}`}
+                    <CSmartTable
+                        items={itemContext?.isDataItemPendingWithdraw || []}
+                        columns={columns2}
+                        loading={itemContext?.loadding}
+                        footer={footer}
+                        itemsPerPage={itemContext?.itemsPerPageWit}
+                        itemsPerPageSelect
+                        pagination={{
+                            external: true,
+                        }}
+                        paginationProps={{
+                            activePage: itemContext?.activePageWit,
+                            pages: itemContext?.recordsPandingWithdraws > 0 ? Math.ceil(itemContext?.recordsPandingWithdraws / itemContext?.itemsPerPageWit) : 1,
+                        }}
+                        onActivePageChange={(page) => {
+                            itemContext?.setActivePageWit(page);
+                            itemContext?.setOpenUpdate(true)
+                        }}
+                        onColumnFilterChange={(filter) => {
+                            itemContext?.setActivePageWit(1)
+                            setColumnFilter(filter)
+                        }}
+                        onItemsPerPageChange={(pageSize) => {
+                            itemContext?.setActivePageWit(1)
+                            itemContext?.setItemsPerPageWit(pageSize)
+                        }}
+                        onSorterChange={(value) => setColumnSorter(value)}
+                        tableFilter={false}
+                        scopedColumns={{
+                            member_id: (item: Item) => (
+                                <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.member_id, item)}>
+                                    {item?.member_id}
+                                </td>
+                            ),
+                            ref: (item: Item) => (
+                                <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.ref, item)}>
+                                    {item?.ref || <em style={{ color: "#88888880" }}>{t("No data")}</em>}
+                                </td>
+                            ),
+                            remark: (item: Item) => (
+                                <td title={item?.remark} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.status, item)}>
+                                    {item?.remark ? <span className='text-danger'>{item?.remark}</span> : <em style={{ color: "#88888880" }}>{t("No data")}</em>}
+                                </td>
+                            ),
+                            nodere: (item: Item) => (
+                                <td title={item?.nodere} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.nodere, item)}>
+                                    <span style={{ color: `${funcColorNodere(item?.nodere, item?.status)}` }}>
+                                        {item?.nodere == 'ถอนโดยระบบออโต้' ? <span style={{ color: `${item?.status == "inq" ? '#531dab' : '#1677ff'}` }}>{item?.status == "inq" ? 'อยู่ในคิว โอนเงิน...' : 'กำลังตรวจสอบ...'}</span> : item?.nodere == 'อยู่ในคิว รอดำเนิการ...' ? 'อยู่ในคิวรอโอน' : funcTxtNodere(item?.nodere, item?.status)}
+                                    </span>
+                                </td>
+                            ),
+                            amount: (item: Item) => (
+                                <td onClick={(e: any) => handleCopy(item?.amount, item)} style={{ fontWeight: "700", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
+                                    {Intl.NumberFormat().format(item?.amount)}.-
+                                </td>
+                            ),
+                            BankAccount: (item: Item) => (
+                                <td onClick={(e: any) => handleCopy(item?.members?.bankId, item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
+                                    <b>{getBadge_bank(item?.members?.bankId)}</b>
+                                    , {formatAccnumID(item?.members?.bankAccountNumber)}<br />
+                                </td>
+                            ),
+                            name_member: (item: Item) => (
+                                <td onClick={() => handleCopy(item?.name_member, item)} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} >
+                                    {item?.name_member}
+                                </td>
+                            ),
+                            status: (item: Item) => (
+                                <td onClick={(e: any) => handleCopy(item?.status, item)} style={{ textTransform: "capitalize", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
+                                    <Tag icon={item?.status == "inq" ? <ClockCircleOutlined /> : item?.status == "inq_manual" ? <ClockCircleOutlined /> : <SyncOutlined spin />} color={getBadgeTags(item?.status)}><b>{getCheckStatus(item?.status)}</b></Tag>
+                                </td>
+                            ),
+                            created_at: (item: Item) => (
+                                <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={(e: any) => handleCopy(item?.created_at, item)}>
+                                    <Tooltip title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
+                                </td>
+                            ),
+                            Advanced: (item: any) => {
+                                return (
+                                    <>
+                                        <td className="py-1" style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}`, cursor: "pointer" }}>
+                                            <Flex vertical gap="small">
+                                                {item?.status == "inq" || item?.status == "inq_manual" ? <>
+                                                    <Tooltip title={`Note: รายการค้าง 10 นาที หรือ มากกว่า ให้กด rejected รายการออกไป`} color={"red"}>
+                                                        <Button
+                                                            loading={switchLoadding2 == item?.id}
+                                                            type={item?.status == "inq" ? 'primary' : item?.status == "inq_manual" ? 'link' : 'default'}
+                                                            onClick={() => funcVerifyInfo(item)}
+                                                            style={{ borderColor: `${item?.status == "inq_manual" ? 'red' : item?.status == "inq" ? '#1890ff00' : ''}`, padding: "0px 10px", color: `${item?.status == "inq_manual" && 'red'}`, background: `${item?.status == "inq" && 'red'}` }}
                                                         >
-                                                            {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"Manual QR"}</>}
-                                                        </Button>}
-                                                        {/* Manual_QR */}
-                                                        {localStorage?.getItem?.(`toggleBtnOkQR-id-${item?.id}`) == "true" && <>
+                                                            {switchLoadding2 == item?.id ? " loading..." : <>{item?.status == "inq" ? <><CloseOutlined /> {"rejected"}</> : item?.status == "inq_manual" ? <><CloseOutlined /> {"rejected"}</> : item?.status}</>}
+                                                        </Button>
+                                                    </Tooltip>
+                                                    {item?.status == "inq" && <Button
+                                                        style={{ textTransform: "capitalize", padding: "0px 10px" }}
+                                                        onClick={() => Manual_QR(item)}
+                                                        className={`${highlightedTimes.includes("23.00-01.25") ? '' : 'd-none'}`}
+                                                    >
+                                                        {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"Manual QR"}</>}
+                                                    </Button>}
+                                                    {/* Manual_QR */}
+                                                    {localStorage?.getItem?.(`toggleBtnOkQR-id-${item?.id}`) == "true" && <>
+                                                        <Button
+                                                            loading={switchLoadding == item?.id}
+                                                            style={{ textTransform: "capitalize", padding: "0px 10px", background: "#1677ff", color: "#fff" }}
+                                                            onClick={() => onChangeModel(item?.id)}
+                                                        >
+                                                            {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"ยืนยัน"}</>}
+                                                        </Button>
+                                                    </>}
+                                                    {/* Manual_Slip */}
+                                                    {localStorage?.getItem?.(`toggleBtnOkSlip-id-${item?.id}`) == "true" && <>
+                                                        <Button
+                                                            loading={switchLoadding == item?.id}
+                                                            style={{ textTransform: "capitalize", padding: "0px 10px", background: "#1677ff", color: "#fff" }}
+                                                            onClick={() => modelManual_Slip(item)}
+                                                        >
+                                                            {switchLoadding == item?.id ? ' loading...' : <><CloudUploadOutlined /> {"ทำต่อ"}</>}
+                                                        </Button>
+                                                    </>}
+                                                </> : null}
+                                                {item?.status == "processing" ?
+                                                    <>
+                                                        <Tooltip title={`Note: โอนเงินผ่านแอพ แล้วอัพสลิปเพื่อยืนยันการทำรายการ (ไม่แนะนำ)`} color={"red"}>
                                                             <Button
-                                                                loading={switchLoadding == item?.id}
-                                                                style={{ textTransform: "capitalize", padding: "0px 10px", background: "#1677ff", color: "#fff" }}
-                                                                onClick={() => onChangeModel(item?.id)}
+                                                                style={{ textTransform: "capitalize", padding: "0px 10px" }}
+                                                                onClick={() => Manual_Slip(item)}
                                                             >
-                                                                {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"ยืนยัน"}</>}
+                                                                {switchLoadding == item?.id ? ' loading...' : <><CloudUploadOutlined /> {"Manual Slip"}</>}
                                                             </Button>
-                                                        </>}
-                                                        {/* Manual_Slip */}
-                                                        {localStorage?.getItem?.(`toggleBtnOkSlip-id-${item?.id}`) == "true" && <>
-                                                            <Button
-                                                                loading={switchLoadding == item?.id}
-                                                                style={{ textTransform: "capitalize", padding: "0px 10px", background: "#1677ff", color: "#fff" }}
-                                                                onClick={() => modelManual_Slip(item)}
-                                                            >
-                                                                {switchLoadding == item?.id ? ' loading...' : <><CloudUploadOutlined /> {"ทำต่อ"}</>}
-                                                            </Button>
-                                                        </>}
-                                                    </> : null}
-                                                    {item?.status == "processing" ?
-                                                        <>
-                                                            <Tooltip title={`Note: โอนเงินผ่านแอพ แล้วอัพสลิปเพื่อยืนยันการทำรายการ (ไม่แนะนำ)`} color={"red"}>
-                                                                <Button
-                                                                    style={{ textTransform: "capitalize", padding: "0px 10px" }}
-                                                                    onClick={() => Manual_Slip(item)}
-                                                                >
-                                                                    {switchLoadding == item?.id ? ' loading...' : <><CloudUploadOutlined /> {"Manual Slip"}</>}
-                                                                </Button>
-                                                            </Tooltip>
-                                                            <Tooltip title={`Note: เข้าแอพ K-biz สแกนคิวอาร์โค้ดที่แสดงหน้าเว็ป แล้วกด ยืนยันการทำรายการ (แนะนำ)`} color={"geekblue"}>
-                                                                <Button
-                                                                    style={{ textTransform: "capitalize", padding: "0px 10px" }}
-                                                                    onClick={() => Manual_QR(item)}
-                                                                >
-                                                                    {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"Manual QR"}</>}
-                                                                </Button>
-                                                            </Tooltip>
-                                                        </>
-                                                        : null
-                                                    }
-                                                    {item?.status == "success" ? <>
-                                                        <Tooltip title="เช็คสถานะการโอนเงิน" >
-                                                            <Button onClick={() => getStatusTransfer(item)} disabled={item?.status != "success"} shape="circle" icon={<FileDoneOutlined />} />
                                                         </Tooltip>
-                                                    </> : null}
-                                                </Flex>
-                                            </td>
-                                        </>
-                                    )
-                                },
-                            }}
-                            onFilteredItemsChange={(items) => {
-                                // ค้นหา
-                            }}
-                            onSelectedItemsChange={(items) => {
-                                // console.log(items)
-                            }}
-                            tableBodyProps={{
-                                className: 'align-middle font-500',
-                            }}
-                            tableProps={{
-                                className: 'add-this-classaninationleft aninationleft',
-                                responsive: true,
-                                striped: false,
-                                hover: true,
-                                bordered: true,
-                                borderless: false,
-                            }}
-                        // sorterValue={{ column: 'created_at', state: 'asc' }}
-                        />,
-                    </>}
+                                                        <Tooltip title={`Note: เข้าแอพ K-biz สแกนคิวอาร์โค้ดที่แสดงหน้าเว็ป แล้วกด ยืนยันการทำรายการ (แนะนำ)`} color={"geekblue"}>
+                                                            <Button
+                                                                style={{ textTransform: "capitalize", padding: "0px 10px" }}
+                                                                onClick={() => Manual_QR(item)}
+                                                            >
+                                                                {switchLoadding == item?.id ? ' loading...' : <><QrcodeOutlined /> {"Manual QR"}</>}
+                                                            </Button>
+                                                        </Tooltip>
+                                                    </>
+                                                    : null
+                                                }
+                                                {item?.status == "success" ? <>
+                                                    <Tooltip title="เช็คสถานะการโอนเงิน" >
+                                                        <Button onClick={() => getStatusTransfer(item)} disabled={item?.status != "success"} shape="circle" icon={<FileDoneOutlined />} />
+                                                    </Tooltip>
+                                                </> : null}
+                                            </Flex>
+                                        </td>
+                                    </>
+                                )
+                            },
+                        }}
+                        onFilteredItemsChange={(items) => {
+                            // ค้นหา
+                        }}
+                        onSelectedItemsChange={(items) => {
+                            // console.log(items)
+                        }}
+                        tableBodyProps={{
+                            className: 'align-middle font-500',
+                        }}
+                        tableProps={{
+                            className: 'add-this-classaninationleft aninationleft',
+                            responsive: true,
+                            striped: false,
+                            hover: true,
+                            bordered: true,
+                            borderless: false,
+                        }}
+                    // sorterValue={{ column: 'created_at', state: 'asc' }}
+                    />,
                 </>
             },
         ];
         //console.log(data)
-        if (itemContext?.recordsWithdraws == 0 && itemContext?.recordsPandingWithdraws == 0) {
-            return <>
-                <Card
-                    style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                    extra={<Search
-                        suffix={suffix}
-                        id='myInput'
-                        value={inputValue}
-                        className='w-100'
-                        type={`${handleTypeInput}`}
-                        loading={itemContext?.loadding}
-                        disabled={itemContext?.loadding}
-                        name={`${handleName}`}
-                        placeholder="Search..."
-                        onChange={onInputChange}
-                        onSearch={onSearch}
-                        addonBefore={selectAfter} />}
-                    loading={loadding}
-                    title={operations}
-                    styles={{ header: { display: "" } }}
-                    children={<>
-                        <Table
-                            style={{ marginTop: 8 }}
-                            columns={columnsEmpty}
-                        />
-                    </>}
-                />
-            </>
-        } else {
-            return <>
-                <Card
-                    style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
-                    extra={<Search
-                        suffix={suffix}
-                        id='myInput'
-                        value={inputValue}
-                        className='w-100'
-                        type={`${handleTypeInput}`}
-                        loading={itemContext?.loadding}
-                        disabled={itemContext?.loadding}
-                        name={`${handleName}`}
-                        placeholder="Search..."
-                        onChange={onInputChange}
-                        onSearch={onSearch}
-                        addonBefore={selectAfter}
-                    />}
-                    // loading={loadding}
-                    title={operations}
-                    styles={{ header: { display: "" } }}
-                    children={<>
-                        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
-                    </>}
-                />
-            </>
-        }
+        return <>
+            <Card
+                style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
+                extra={<Search
+                    suffix={suffix}
+                    id='myInput'
+                    value={inputValue}
+                    className='w-100'
+                    type={`${handleTypeInput}`}
+                    loading={itemContext?.loadding}
+                    disabled={itemContext?.loadding}
+                    name={`${handleName}`}
+                    placeholder="Search..."
+                    onChange={onInputChange}
+                    onSearch={onSearch}
+                    addonBefore={selectAfter}
+                />}
+                // loading={loadding}
+                title={operations}
+                styles={{ header: { display: "" } }}
+                children={<>
+                    {!showTableSearch ? <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+                        :
+                        <TableTableSearch 
+                        data={tableDataSearch} 
+                        handleCopy={handleCopy} 
+                        t={t} 
+                        getStatusTransfer={getStatusTransfer}
+                        getBgTags={getBgTags}
+                        getColorTags={getColorTags}
+                        getBadge_bank={getBadge_bank}
+                        formatAccnumID={formatAccnumID}
+                        getBadgeTags={getBadgeTags}
+                        funcColorNodere={funcColorNodere}
+                        funcTxtNodere={funcTxtNodere}
+                        clearInput={clearInput}
+                        loadding={itemContext?.loadding}
+                        setShowTableSearch={setShowTableSearch}
+                         />
+                    }
+                </>}
+            />
+        </>
     }
     function MainModel(isData: any) {
         if (!isData) {
@@ -1148,6 +1094,7 @@ const Withdrawal = () => {
                 setLoadding={setLoadding}
                 transferconfirmation={transferconfirmation}
                 t={t}
+                
             />
         </>
     }

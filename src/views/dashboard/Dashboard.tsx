@@ -21,6 +21,7 @@ import { SyncOutlined, UserOutlined, BankOutlined, AlertOutlined } from '@ant-de
 import ApiBank from 'src/api/Apibank';
 import type { CollapseProps } from 'antd';
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
+import { Tooltip } from "antd";
 interface DataTypeRequest_Alls {
   accnum: any;
   amount: any;
@@ -100,27 +101,36 @@ const Dashboard = () => {
       content: `${msg}`,
     });
   };
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          itemContext?.getBankAccount?.(),
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        return
+      }
+    };
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
   function formatAccnumID(numberAcc: string) {
     const length = numberAcc?.length;
     const middleFour = numberAcc?.slice(6, length);
     return `xx ${middleFour}`;
   }
-  const handleCopy = (text: string) => {
-    navigator?.clipboard?.writeText(text).then(() => {
-      success('Copied : ' + text);
-    }).catch(() => {
-      error('Copied Something went wrong.');
-    });
-  };
+ 
   function calculateAccountUsage(data: any) {
     const createdAt = data?.created_at;
     const limitDays = 120;
-
     if (!createdAt) {
       return 0;
     }
-
     const createdDate = Moment(createdAt);
     const now = Moment();
     const usedDays = now.diff(createdDate, 'days');
@@ -129,16 +139,13 @@ const Dashboard = () => {
   function calculateAccountRemainingDays(data: any) {
     const createdAt = data?.created_at;
     const limitDays = 120;
-
     if (!createdAt) {
       return 0;
     }
-
     const createdDate = Moment(createdAt);
     const now = Moment();
     const usedDays = now.diff(createdDate, 'days');
     const remainingDays = limitDays - usedDays;
-
     return remainingDays >= 0 ? remainingDays : 0;
   };
   function removeTitle(fullName: any) {
@@ -186,7 +193,6 @@ const Dashboard = () => {
         a.push({ data: item.bankAccounts });
       }
     });
-
     a.forEach((o) => {
       o?.data?.forEach((c) => {
         if (c?.accountType === 'withdrawal' && c?.status_bank === 'Active') {
@@ -201,10 +207,7 @@ const Dashboard = () => {
     setTimeout(() => {
       setLoadding(false);
     }, 1000);
-
-
     return <>
-
       <Divider orientation="left" className='mt-0'>{t("Bank account status")}</Divider>
       <CCol xl={6} md={6}>
         {accDeposit?.length > 0 ?
@@ -225,7 +228,6 @@ const Dashboard = () => {
                           children={<CCardBody className="text-truncate">
                             <CRow>
                               <CCol >
-                                {/* <h5 className='mb-2 text-truncate' style={{ textTransform: "uppercase" }}>{t(items?.bank?.bank_id)}</h5> */}
                                 <h5 className='text-truncate mb-2 d-flex' style={{ textTransform: "uppercase", alignItems: "center" }}><Avatar size="small" src={<img src={items?.bank?.imageUrl} alt={t(items?.bank?.bank_id)} />} />  <span className='me-1'></span>  {t(items?.bank?.bank_id)}</h5>
                               </CCol>
                               <CCol >
@@ -247,7 +249,9 @@ const Dashboard = () => {
                                 <span className='d-flex justify-content-end'><span className='me-1' style={{ fontWeight: "500" }}>{t('เหลือเวลาใช้งาน :')}</span> <span className={`${calculateAccountRemainingDays(items) < 10 ? 'text-danger' : ''}`}>{items?.accountName == "PayoneX" ? <b>{'Forever'}</b> : <b>{calculateAccountRemainingDays(items)} วัน</b>}</span></span>
                               </p>
                               <p className="d-grid gap-2 d-md-flex justify-content-md-end">
-                                {t('Latest update')} {Moment(items?.updated_at).format('YYYY/MM/DD HH:mm:ss')}{' '}
+                                {t('Latest update')} :
+                                {/* {Moment(items?.updated_at).format('YYYY/MM/DD HH:mm:ss')}{' '} */}
+                                <Tooltip placement="top" title={Moment(items?.updated_at).locale("th").format('YYYY/MM/DD HH:mm:ss')}><b>{FormatTimeAgo(items?.updated_at)}</b></Tooltip>
                               </p>
                             </CRow>
                             <CCard className="mb-0">
@@ -302,8 +306,6 @@ const Dashboard = () => {
                       </Badge.Ribbon>
                     </CCol>
                   </>}
-
-
                 </>
               )
             })
@@ -346,7 +348,6 @@ const Dashboard = () => {
                                 <CCol><UserOutlined style={{ fontSize: "16px" }} /> ชื่อบัญชี : <span style={{ fontWeight: "500" }}>{removeTitle(items?.accountName)}</span></CCol>
                                 <CCol>
                                   <BankOutlined style={{ fontSize: "16px" }} /> เลขบัญชี : <span style={{ fontWeight: "500" }}>{formatAccnumID(items?.accountNumber) == "xx X" ? '-' : formatAccnumID(items?.accountNumber)}</span>
-                                  {/* <p>{t('Account Number')} : {formatAccnumID(items?.accountNumber)}</p>{' '} */}
                                   <h2 className="d-grid d-flex justify-content-end">
                                     <span id='Balance'>฿ {Intl.NumberFormat().format(items?.balance) + '.-' || '-'}</span>
                                   </h2>
@@ -360,7 +361,8 @@ const Dashboard = () => {
                                     <span className='d-flex justify-content-end mb-0'><span className='me-1' style={{ fontWeight: "500" }}>{t('เหลือเวลาใช้งาน :')}</span> <span className={`${calculateAccountRemainingDays(items) < 10 ? 'text-danger' : ''}`}>{items?.accountName == "PayoneX" ? <b>{'Forever'}</b> : <b>{calculateAccountRemainingDays(items)} วัน</b>}</span></span>
                                   </div>
                                   <p className="d-grid gap-2 d-flex  justify-content-end">
-                                    <span className='d-flex  justify-content-start'>{t('Latest update')} {Moment(items?.updated_at).locale("th").format('YYYY/MM/DD HH:mm:ss')}</span>
+                                    <span className='d-flex  justify-content-start'>{t('Latest update')} :</span>
+                                    <Tooltip placement="top" title={Moment(items?.updated_at).locale("th").format('YYYY/MM/DD HH:mm:ss')}><b>{FormatTimeAgo(items?.updated_at)}</b></Tooltip>
                                   </p>
                                 </CRow>
                               </CCardBody>}
@@ -418,7 +420,7 @@ const Dashboard = () => {
         const startTimeInMinutes = startHour * 60 + startMinute;
         const endTimeInMinutes = endHour * 60 + endMinute;
         const currentTimeInMinutes = currentHour * 60 + currentMinute;
-        if (startHour > endHour) { 
+        if (startHour > endHour) {
           return currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes < endTimeInMinutes;
         } else {
           return currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes;
@@ -454,8 +456,8 @@ const Dashboard = () => {
             <td className={highlightedTimes.includes('23.00-02.00') ? 'highlight-active Deposit' : 'highlight'}><span className='text-success'>{highlightedTimes.includes('23.00-02.00') ? "ใช้งานปกติ" : null}</span></td>
           </tr>
           <tr>
-            <td className={`highlight-active Deposit`}><span  className='text-success'>ได้ตลอด</span></td>
-            <td className={`highlight-active Deposit`}><span  className='text-success'>กสิกรไทย</span></td>
+            <td className={`highlight-active Deposit`}><span className='text-success'>ได้ตลอด</span></td>
+            <td className={`highlight-active Deposit`}><span className='text-success'>กสิกรไทย</span></td>
             <td className={`highlight-active Deposit text-success`}><span className='text-success'>ฝากเงิน</span></td>
             <td className={`highlight-active Deposit`}><span className='text-success'>ใช้งานปกติ</span></td>
           </tr>
@@ -463,9 +465,9 @@ const Dashboard = () => {
             <td className={highlightedTimes.includes('22.00-23.30') ? 'highlight-active Deposit' : 'highlight'}><span className='text-success'>22.00-23.30</span></td>
             <td className={highlightedTimes.includes('22.00-23.30') ? 'highlight-active Deposit' : 'highlight'}><span className='text-success'>กรุงไทย</span></td>
             <td className={highlightedTimes.includes('22.00-23.30') ? 'highlight-active Deposit text-success' : 'highlight text-success'}><span className='text-success'>ฝากเงิน</span></td>
-            <td className={highlightedTimes.includes('22.00-23.30') ? 'highlight-active Deposit' : 'highlight'}><span  className='text-success'>{highlightedTimes.includes('22.00-23.30') ? "ใช้งานปกติ" : null}</span></td>
+            <td className={highlightedTimes.includes('22.00-23.30') ? 'highlight-active Deposit' : 'highlight'}><span className='text-success'>{highlightedTimes.includes('22.00-23.30') ? "ใช้งานปกติ" : null}</span></td>
           </tr>
-          
+
           <tr>
             <td className={highlightedTimes.includes('22.30-03.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>22.30-03.00</></td>
             <td className={highlightedTimes.includes('22.30-03.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>ไทยพาณิชย์ (ถอน)</></td>
@@ -474,7 +476,7 @@ const Dashboard = () => {
           </tr>
           <tr>
             <td className={highlightedTimes.includes('01.30-23.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>01.30-23.00</></td>
-            <td className={highlightedTimes.includes('01.30-23.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>กรุงไทย (ถอน)</></td> 
+            <td className={highlightedTimes.includes('01.30-23.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>กรุงไทย (ถอน)</></td>
             <td className={highlightedTimes.includes('01.30-23.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>ถอนเงิน</></td>
             <td className={highlightedTimes.includes('01.30-23.00') ? 'highlight-active Withdrawal text-danger' : 'highlight text-danger'}><>{highlightedTimes.includes('01.30-23.00') ? <span className='text-danger'>ใช้งานปกติ <small className='text-dark'>( *ห้ามใช้คู่กับ PayoneX (ถอน) )</small></span> : null}</></td>
           </tr>
@@ -524,7 +526,5 @@ const Dashboard = () => {
       </CRow>
     </>
   )
-
 }
-
 export default Dashboard

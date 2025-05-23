@@ -647,7 +647,7 @@ export const ModalHistoryTransferGateway = ({ visibleHistoryTransferGateway, set
                                 activePage,
                                 pages: records > 0 ? Math.ceil(records / itemsPerPage) : 1,
                             }}
-                            
+
                             onFilteredItemsChange={(items) => {
                                 //console.log('onFilteredItemsChange')
                                 //console.table(items)
@@ -738,15 +738,6 @@ const Option_bank: React.FC<Option> = ({
     const { t } = useTranslation();
     const [api, contextHolder_Notify] = notification.useNotification();
     const [isOpen, setIsOpen] = useState(false);
-
-    useEffect(() => {
-        const fetchData = () => {
-            data?.getdata_bankPlatforms?.();
-            data?.getDataProfileAdmin?.();
-            data?.getallAdmins?.();
-        };
-        fetchData()
-    }, []);
     let dataBankgrop: TypeBankGrop[] = data?.stateBankGrop?.data;
     const error = (msg: any) => {
         messageApi.open({
@@ -1419,12 +1410,7 @@ const Option_bank: React.FC<Option> = ({
         }
     }
     const [dataDetailsXL, setDataDetailsXL]: any = useState("")
-    function handleModelDetailsXL(params: any) {
-        if (params) {
-            setDataDetailsXL(params)
-            setVisibleXL(!visibleXL)
-        }
-    }
+
     function countAccount(n: any) {
         let length: any = "";
         var i = !n ? undefined : n;
@@ -2236,7 +2222,6 @@ const Option_bank: React.FC<Option> = ({
         }
 
     }
-
     async function getTransferMoneyToAccount_Wealth(item: any) {
         data?.getBankList?.()
         if (item?.id) {
@@ -2443,8 +2428,6 @@ const Option_bank: React.FC<Option> = ({
         }
 
     }
-
-
     function getCheckedBankButton(item: any) {
         if (item?.bank?.bank_id == "Wealth") {
             return <>
@@ -2484,13 +2467,13 @@ const Option_bank: React.FC<Option> = ({
             return null
         }
     }
-    function MainContainer(data: any) {
-        if (data?.length < 0) {
-            return <CSmartTable className='mt-3' loading={data?.loadding} columns={columns} />
+    const onChangeVault = (key: string) => {
+        console.log(key);
+    };
+    function MainContainer(fetchData: any) {
+        if (fetchData?.length < 0) {
+            return <CSmartTable className='mt-3' loading={fetchData?.loadding} columns={columns} />
         } else {
-            const onChangeVault = (key: string) => {
-                console.log(key);
-            };
             let length_Face_Scan = faceScanAccBanks?.length;
             let length_Captcha = captchaAccBanks?.length;
             let length_Repair = (length_Face_Scan + length_Captcha);
@@ -2913,7 +2896,7 @@ const Option_bank: React.FC<Option> = ({
                     items={[
                         // Tab 1 เพิ่มบัญชีธนาคาร
                         {
-                            label: !showConfig ? `${t("Current Account")} ( ${data?.loadding ? 0 : activeAccBanks?.length} ${t("items")} )` : ``,
+                            label: `${t("Current Account")} ( ${fetchData?.loadding ? 0 : activeAccBanks?.length} ${t("items")} )`,
                             disabled: false,
                             key: '1',
                             children: (
@@ -2922,19 +2905,14 @@ const Option_bank: React.FC<Option> = ({
                                         style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
                                         // styles={{ header: { display: "none" } }}
                                         extra={operations}
-                                        // loading={data?.loadding}
-
                                         title={<span className='title-card'>
                                             {"บัญชีธนาคารที่ใช้งาน"}
                                         </span>}
                                         children={<>
-                                            {showConfig && <>
-                                                <Skeleton loading={data?.loadding} children={mainSelectBank(activeAccBanks)} />
-                                            </>}
-                                            {!showConfig && <CRow className={`${!showConfig && "aninationleft"}`}>
+                                            <CRow className={`${!showConfig && "aninationleft"}`}>
                                                 <CSmartTable
                                                     columns={columns}
-                                                    loading={data?.loadding}
+                                                    loading={fetchData?.loadding}
                                                     footer={false}
                                                     items={activeAccBanks ?? []}
                                                     itemsPerPageSelect
@@ -3183,13 +3161,14 @@ const Option_bank: React.FC<Option> = ({
                                                     }}
                                                     sorterValue={{ column: 'accountType', state: 'asc' }}
                                                 />
-                                            </CRow>}
-                                        </>} variant="borderless" />
+                                            </CRow>
+                                        </>}
+                                        variant="borderless" />
                                 </>),
                         },
                         // Tab2 Verify Account
                         {
-                            label: !showConfig ? `${t("Verify account")} ( ${data?.loadding ? 0 : verifyAccBanks?.length} ${t("items")} )` : ``,
+                            label: !showConfig ? `${t("Verify account")} ( ${fetchData?.loadding ? 0 : verifyAccBanks?.length} ${t("items")} )` : ``,
                             disabled: false,
                             key: '2',
                             children: (
@@ -3208,7 +3187,7 @@ const Option_bank: React.FC<Option> = ({
                                             <CRow className={`${!showConfig && "aninationleft-d-none"}`}>
                                                 <CSmartTable
                                                     columns={columns3}
-                                                    loading={data?.loadding}
+                                                    loading={fetchData?.loadding}
                                                     footer={false}
                                                     items={verifyAccBanks ?? []}
                                                     itemsPerPageSelect
@@ -3426,7 +3405,7 @@ const Option_bank: React.FC<Option> = ({
                         },
                         // Tab3 Repair Account
                         {
-                            label: !showConfig ? `${t("Repair account")} ( ${data?.loadding ? 0 : length_Repair} ${t("items")} )` : ``,
+                            label: !showConfig ? `${t("Repair account")} ( ${fetchData?.loadding ? 0 : length_Repair} ${t("items")} )` : ``,
                             disabled: false,
                             key: '3',
                             children: (
@@ -3435,7 +3414,7 @@ const Option_bank: React.FC<Option> = ({
                                         style={{ borderTopRightRadius: "10px", borderTopLeftRadius: "10px" }}
                                         // styles={{ header: { display: "none" } }}
                                         extra={operations}
-                                        loading={data?.loadding}
+                                        loading={fetchData?.loadding}
                                         title={<span className='title-card'>
                                             Repair account
                                         </span>}
@@ -3632,67 +3611,7 @@ const Option_bank: React.FC<Option> = ({
             error('หมายเลขโทรศัพท์ไม่ถูกต้อง');
         }
     };
-    function fillterDatamerchant(id: any, type: any) {
-        // console.log(id, type)
-        if (!id) {
-            return t("No data")
-        }
-        if (type == 'member id') {
-            const c: any = data?.stateMember?.data?.filter((user: any) => user.merchantId == id);
-            console.log(c)
-            return !c[0]?.userId ? t("No data") : t(c[0]?.userId);
-        }
-        const c: any = data?.stateMerchang?.data?.filter((user: any) => user.id == id);
-        //console.log(admin)
-
-        return !c[0]?.name ? t("No data") : t(c[0]?.name);
-    }
-    //console.log(selectedGroup)
-    const [handleInputDepositGateway, setHandleInputDepositGateway]: any = useState<any>({
-        deposit: "",
-    })
-    function onChangTypeDepositGateway(event: any) {
-        setHandleInputDepositGateway({ ...handleInputDepositGateway, [event?.target?.name]: event?.target?.value })
-        handleOnChangTypeDeposit_gateway({ ...handleInputDepositGateway, [event?.target?.name]: event?.target?.value })
-    }
-    function handleOnChangTypeDeposit_gateway(params: any) {
-        data.setLoadding(true)
-        let id = item?.bankGroup?.filter((group: any) => group?.isActive === true)
-        //console.log(id)
-        if (id?.length <= 0) {
-            openNotification("error", "error")
-            data.setLoadding(false)
-            return
-        }
-        if (params) {
-            let postData = {
-                deposit: params.deposit,
-                bankgrobid: id[0]?.id,
-            }
-            Apisetting.upBank_level_deposit(postData)
-                .then((res) => {
-                    if (res.data.success == true) {
-                        setTimeout(() => {
-                            data?.getBankAccount()
-                            openNotification("success", `เปิดใช้งาน ${params?.deposit == 'Gateway' ? 'ฝาก gateway นอก' : 'ฝาก RTB เดิม'}`)
-                            localStorage.setItem("bankgroup", JSON.stringify(postData))
-                            data?.setLoadding(false)
-                        }, 2500)
-                    } else {
-                        setTimeout(() => {
-                            openNotification("error", `${res?.data?.message.msg}`)
-                            data?.setLoadding(false)
-                        }, 2500)
-                    }
-                }).catch((err) => {
-                    openNotification("error", `${err.message}`)
-                    data?.setLoadding(false)
-                })
-        } else {
-            openNotification("error", `error`)
-            data?.setLoadding(false)
-        }
-    }
+   
     const [currentPage, setCurrentPage] = useState(1)
     const [dataTransferGateway, setDataTransferGateway] = useState(undefined)
     const handleShoeModel = (item: any) => {
@@ -3701,7 +3620,6 @@ const Option_bank: React.FC<Option> = ({
             setVisibleHistoryTransferGateway(true)
         }
     }
-
     return (
         <>
             {contextHolder}

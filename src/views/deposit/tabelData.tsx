@@ -72,7 +72,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
     const [messageApi2, contextHolder2]: any = message?.useMessage();
     const [columnFilter, setColumnFilter]: any = useState({})
     const [columnSorter, setColumnSorter]: any = useState()
-    const [itemsPerPage, setItemsPerPage]: any = useState(10)
     const success = (msg: any) => {
         messageApi2?.open({
             type: 'success',
@@ -264,18 +263,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                 error('Copied Something went wrong.');
             });
     };
-    const handleCopy2 = (text: any, item: any) => {
-        setIsData(item)
-        setVisible2(!visible2)
-        itemContext?.getAllMembers()
-        navigator?.clipboard?.writeText(text)
-            .then(() => {
-                success('Copied : ' + text);
-            })
-            .catch(() => {
-                error('Copied Something went wrong.');
-            });
-    };
     function formatAccnumID(numberAcc: any) {
         if (numberAcc?.length < 9) {
             return `${!numberAcc ? t("No data") : `xx ${numberAcc}`}`;
@@ -369,7 +356,10 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                     bordered: true,
                     borderless: false,
                 }}
-                onActivePageChange={(page) => itemContext?.setActivePage(page)}
+                onActivePageChange={(page) => {
+                    itemContext?.setLoadding(true)
+                    itemContext?.setActivePage(page)
+                }}
                 onColumnFilterChange={(filter) => {
                     itemContext?.setActivePage(itemContext?.activePage)
                     setColumnFilter(filter)

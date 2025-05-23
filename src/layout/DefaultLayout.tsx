@@ -36,7 +36,6 @@ interface TypeAcc {
 const DefaultLayout = (props: any) => {
   const navigate: any = useNavigate()
   const currentLocation = useLocation()?.pathname;
-
   const [messageApi, contextHolder]: any = message?.useMessage();
   const [loadding, setLoadding]: any = useState(false)
   const [spinUpdate, setSpinUpdate]: any = useState(false)
@@ -124,13 +123,10 @@ const DefaultLayout = (props: any) => {
     },
   )
   const [bankList, setBanklist]: any = useState("")
-
   const [isDataDeposit, setIsDataItemDeposit]: any = useState([])
   const [isDataItemPendingDeposit, setIsDataItemPendingDeposit]: any = useState([])
-
   const [isDataWithdraw, setIsDataItemWithdraw]: any = useState([])
   const [isDataItemPendingWithdraw, setIsDataItemPendingWithdraw]: any = useState([])
-  //console.log(isDataItemPendingDeposit)
   const [stateMerchang, setDatastateMerchang]: any = useReducer(
     (stateMerchang: any, newstateMerchang: any) => ({ ...stateMerchang, ...newstateMerchang }),
     {
@@ -169,10 +165,17 @@ const DefaultLayout = (props: any) => {
       toast.onmouseleave = Swal.resumeTimer;
     }
   });
-
-
   const [totalPages, setTotalPages] = useState(0);
- const [highlightedTimes, setHighlightedTimes] = useState<string[]>([]);
+  const [highlightedTimes, setHighlightedTimes] = useState<string[]>([]);
+  const [openUpdate, setOpenUpdate]: any = useState(true)
+  const [dataMessage, setDataMessage] = useState<any>([]);
+  const [newMessage, setNewMessage] = useState<any>('');
+  const [totalPending, setTotalPending] = useState<number>(0);
+  const [nofPendingWit, setNofPendingWit] = useState<string | number>(0);
+  const [nofWit, setNofWit] = useState<string | number>(0);
+  const [nofDep, setNofDep] = useState<string | number>(0);
+  const [nofPendingDep, setNofPendingDep] = useState<string | number>(0);
+  const [nofNewMember, setNofNewMember] = useState<string | number>(0);
 
   useEffect(() => {
     const updateHighlight = () => {
@@ -180,7 +183,6 @@ const DefaultLayout = (props: any) => {
       const hours = now.getHours().toString().padStart(2, '0');
       const minutes = now.getMinutes().toString().padStart(2, '0');
       const currentTime = `${hours}.${minutes}`;
-
       const shouldHighlight = [
         '23.00-02.00',
         '00.00-01.00',
@@ -205,42 +207,40 @@ const DefaultLayout = (props: any) => {
           return currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes;
         }
       });
-
       setHighlightedTimes(shouldHighlight);
     };
     updateHighlight();
-
-    // Update highlight every minute
-    const intervalId = setInterval(updateHighlight, 60 * 1000);
-
-    // Clean up the interval on component unmount
+    bank_closed_system_maintenance()
+    const intervalId = setInterval(() => {
+      updateHighlight();
+      bank_closed_system_maintenance();
+    }, 60 * 1000);
     return () => clearInterval(intervalId);
   }, []);
   function bank_closed_system_maintenance() {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
-
     if (hours >= 22 || hours <= 4) {
       return (
         <b>
           {/* <span className={`me-5 ${highlightedTimes.includes("23.00-02.00") ? '':'d-none'}`} >
             📢 ช่วงเวลา 23.00 - 02.00 น. ธนาคารกรุงไทย (KTB) <span className=''>ปิดปรับปรุงระบบชั่วคราว</span>.
           </span> */}
-          <span className={`me-5 ${highlightedTimes.includes("00.00-01.00") ? '':'d-none'}`}>
+          <span className={`me-5 ${highlightedTimes.includes("00.00-01.00") ? '' : 'd-none'}`}>
             📢 ช่วงเวลา 00.00 - 01.00 น. ธนาคารกสิกรไทย (KBank) <span className=''>ปิดปรับปรุงระบบชั่วคราว</span>.
           </span>
 
-          <span className={`me-5 ${highlightedTimes.includes("00.00-02.00") ? '':'d-none'}`}>
+          <span className={`me-5 ${highlightedTimes.includes("00.00-02.00") ? '' : 'd-none'}`}>
             📢 ช่วงเวลา 00.00 - 02.00 น. ธนาคารไทยพาณิชย์ (SCB) <span className=''>ปิดปรับปรุงระบบชั่วคราว</span>.
           </span>
-          <span className={`me-5 ${highlightedTimes.includes("23.00-01.30") ? '':'d-none'}`}>
+          <span className={`me-5 ${highlightedTimes.includes("23.00-01.30") ? '' : 'd-none'}`}>
             📢 ช่วงเวลา 23.00 - 01.30 น.  ระบบปิดให้บริการชั่วคราวสำหรับ <span className=''>ธนาคารกรุงไทย (ถอน)</span> กรุณาเลือกใช้ธนาคารอื่น.
           </span>
-          <span className={`me-5 ${highlightedTimes.includes("01.30-04.30") ? '':'d-none'}`}>
+          <span className={`me-5 ${highlightedTimes.includes("01.30-04.30") ? '' : 'd-none'}`}>
             📢 ช่วงเวลา 01.30 - 04.30 น. ธนาคารกรุงศรีอยุธยา (BAY) <span className=''>ปิดปรับปรุงระบบชั่วคราว</span>.
           </span>
-          <span className={`me-5 ${highlightedTimes.includes("22.30-01.35") ? '':'d-none'}`}>
+          <span className={`me-5 ${highlightedTimes.includes("22.30-01.35") ? '' : 'd-none'}`}>
             📢 ช่วงเวลา 22.30 - 01.35 น. PayoneX (GateWay) <span className=''>ปิดปรับปรุงระบบชั่วคราว</span> ไม่สามารถใช้งานได้.
           </span>
         </b>
@@ -255,25 +255,12 @@ const DefaultLayout = (props: any) => {
     });
   };
 
-  const [dataMessage, setDataMessage] = useState<any>([]);
-  const [newMessage, setNewMessage] = useState<any>('');
   const onChangeCurrentPage = (event: any) => {
     //console.log(activePage)
     get_data_deposit()
     setActivePage(parseInt(event?.target?.innerText))
     //parseInt(setActivePage(event))
   }
-  const [totalPending, setTotalPending] = useState<number>(0);
-
-  const [nofPendingWit, setNofPendingWit] = useState<string | number>(0);
-  const [nofWit, setNofWit] = useState<string | number>(0);
-
-  const [nofDep, setNofDep] = useState<string | number>(0);
-  const [nofPendingDep, setNofPendingDep] = useState<string | number>(0);
-
-
-  const [nofNewMember, setNofNewMember] = useState<string | number>(0);
-
   // console.log(nofPendingWit)
   // console.log(nofWit)
   interface Itemcalculate {
@@ -352,60 +339,75 @@ const DefaultLayout = (props: any) => {
       })
   }
   const get_data_deposit = () => {
+
     const offset = (activePage - 1) * itemsPerPage
     let data = {
       offset: offset,
       limit: itemsPerPage,
       sort: "id",
     }
-    setLoadding(true)
-    setSpinUpdate(true)
-    Apibank.get_data_deposit(data)
-      .then((res) => {
-        if (res?.data?.success == true) {
-          localStorage.setItem("recordsDeposit", res?.data?.data?.count)
-          localStorage.setItem("recordsPandingDeposit", res?.data?.datapanding?.count)
-          var o: any = localStorage.getItem("recordsDeposit")
-          var oo: any = localStorage.getItem("recordsPandingDeposit")
-          checkError(400)
-          setTimeout(() => {
+    try {
+      Apibank.get_data_deposit(data)
+        .then((res) => {
+          if (res?.data?.success == true) {
+            setOpenUpdate(false)
             setLoadding(false)
             setSpinUpdate(false)
+            // let isNow = moment().format('HH:mm:ss')
+            // console.log("อัพเดทข้อมูลรายการฝากสำเร็จเมื่อ :" + " " + isNow);
+            localStorage.setItem("recordsDeposit", res?.data?.data?.count)
+            localStorage.setItem("recordsPandingDeposit", res?.data?.datapanding?.count)
+            var o: any = localStorage.getItem("recordsDeposit")
+            var oo: any = localStorage.getItem("recordsPandingDeposit")
+            checkError(400)
             setIsDataItemDeposit(res?.data?.data?.rows)
             setIsDataItemPendingDeposit(res?.data?.datapanding?.rows)
             setRecords(res?.data?.data?.count)
             setRecordsPandingDeposit(res?.data?.datapanding?.count);
             setNofDep(o)
             setNofPendingDep(oo)
-          }, 1000)
-        } else {
-          setTimeout(() => {
-            setSpinUpdate(false)
-            setLoadding(false)
-          }, 1000)
-
-          error(res?.data?.message)
-        }
-      })
-      .catch((err: any) => {
-        setSpinUpdate(false)
-        setLoadding(false)
-        if (err.status == 401) {
-          Toast.fire({
-            icon: "info",
-            title: t('expTimesession')
-          });
-          Logout()
-          navigate("/login");
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        } if (err.code == "ERR_NETWORK") {
-          error(err.message)
-        } else {
-          console.log(err)
-        }
-      })
+          } else {
+            setTimeout(() => {
+              setOpenUpdate(false)
+              setSpinUpdate(false)
+              setLoadding(false)
+            }, 1000)
+            error(res?.data?.message)
+          }
+        })
+        .catch((err: any) => {
+          setOpenUpdate(false)
+          setSpinUpdate(false)
+          setLoadding(false)
+          if (err.status == 401) {
+            Toast.fire({
+              icon: "info",
+              title: t('expTimesession')
+            });
+            Logout()
+            navigate("/login");
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          } if (err.code == "ERR_NETWORK") {
+            error(err.message)
+          } else {
+            console.log(err)
+          }
+        })
+    } catch (error: any) {
+      setOpenUpdate(false)
+      setLoadding(false)
+      if (error instanceof Error) {
+        console.error("ชื่อข้อผิดพลาด:", error.name);
+        console.error("ข้อความข้อผิดพลาด:", error.message);
+        console.error("Stack Trace:", error.stack);
+      } else {
+        console.error("ข้อผิดพลาดที่ไม่รู้จัก:", error);
+      }
+    } finally {
+      return true
+    }
   }
   const get_data_wit = () => {
     const offset = (activePageWit - 1) * itemsPerPageWit
@@ -414,18 +416,19 @@ const DefaultLayout = (props: any) => {
       limit: itemsPerPageWit,
       sort: "id",
     }
-    setLoadding(true)
-    setSpinUpdate(true)
-    Apibank.gtdata_withdraws(data)
-      .then((res) => {
-        if (res?.data?.success == true) {
-          localStorage.setItem("recordsWithdraws", res?.data?.data?.count)
-          localStorage.setItem("recordsPandingWithdraws", res?.data?.datapanding?.count)
-          var o: any = localStorage.getItem("recordsWithdraws")
-          var oo: any = localStorage.getItem("recordsPandingWithdraws")
-          setTimeout(() => {
+    try {
+      Apibank.gtdata_withdraws(data)
+        .then((res) => {
+          if (res?.data?.success == true) {
             setLoadding(false)
+            setOpenUpdate(false)
             setSpinUpdate(false)
+            // let isNow = moment().format('HH:mm:ss')
+            // console.log("อัพเดทรายการถอนสำเร็จเมื่อ :" + " " + isNow);
+            localStorage.setItem("recordsWithdraws", res?.data?.data?.count)
+            localStorage.setItem("recordsPandingWithdraws", res?.data?.datapanding?.count)
+            var o: any = localStorage.getItem("recordsWithdraws")
+            var oo: any = localStorage.getItem("recordsPandingWithdraws")
             setIsDataItemWithdraw(res?.data?.data?.rows)
             setIsDataItemPendingWithdraw(res?.data?.datapanding?.rows)
             setRecordsWithdraws(res?.data?.data?.count)
@@ -433,58 +436,87 @@ const DefaultLayout = (props: any) => {
             setTotalPending(calculateTotal(res?.data?.datapanding?.rows));
             setNofWit(o)
             setNofPendingWit(oo)
-          }, 1000)
 
-        } else {
-          setTimeout(() => {
-            setSpinUpdate(false)
-            setLoadding(false)
-          }, 1000)
-          error(res?.data?.message)
-        }
-      })
-      .catch((err: any) => {
-        setSpinUpdate(false)
-        setLoadding(false)
-        console.log(err)
-      })
+          } else {
+            setTimeout(() => {
+              setOpenUpdate(false)
+              setSpinUpdate(false)
+              setLoadding(false)
+            }, 1000)
+            error(res?.data?.message)
+          }
+        })
+        .catch((err: any) => {
+          setOpenUpdate(false)
+          setSpinUpdate(false)
+          setLoadding(false)
+          console.log(err)
+        })
+    } catch (error: any) {
+      setOpenUpdate(false)
+      setLoadding(false)
+      if (error instanceof Error) {
+        console.error("ชื่อข้อผิดพลาด:", error.name);
+        console.error("ข้อความข้อผิดพลาด:", error.message);
+        console.error("Stack Trace:", error.stack);
+      } else {
+        console.error("ข้อผิดพลาดที่ไม่รู้จัก:", error);
+      }
+    } finally {
+      return true
+    }
+
   }
-
   const getBankAccount = () => {
     //setLoadding(true)
-    setSpinUpdate(true)
-    Apisetting.getall_BankAccount()
-      .then((res: any) => {
-        if (res?.data?.success == true) {
-          setLoadding(false)
+    try {
+      Apisetting.getall_BankAccount()
+        .then((res: any) => {
+          if (res?.data?.success == true) {
+            setOpenUpdate(false)
+            setLoadding(false)
+            setSpinUpdate(false)
+            setState_BankAccount(res?.data)
+            filterActiveBankAccunt(res?.data);
+          } else {
+            setSpinUpdate(false)
+            setLoadding(false)
+            error(res?.data?.message)
+          }
+        })
+        .catch((err: any) => {
           setSpinUpdate(false)
-          setState_BankAccount(res?.data)
-          filterActiveBankAccunt(res?.data);
-        } else {
-          setSpinUpdate(false)
           setLoadding(false)
-          error(res?.data?.message)
-        }
-      })
-      .catch((err: any) => {
-        setSpinUpdate(false)
-        setLoadding(false)
-        if (err.status == 401) {
-          Toast.fire({
-            icon: "info",
-            title: t('expTimesession')
-          });
-          Logout()
-          navigate("/login");
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        } if (err.code == "ERR_NETWORK") {
-          error(err.message)
-        } else {
-          // console.log(err)
-        }
-      })
+          if (err.status == 401) {
+            Toast.fire({
+              icon: "info",
+              title: t('expTimesession')
+            });
+            Logout()
+            navigate("/login");
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          } if (err.code == "ERR_NETWORK") {
+            error(err.message)
+          } else {
+            // console.log(err)
+          }
+        })
+    } catch (error: any) {
+      setOpenUpdate(false)
+      setLoadding(false)
+      if (error instanceof Error) {
+        console.error("ชื่อข้อผิดพลาด:", error.name);
+        console.error("ข้อความข้อผิดพลาด:", error.message);
+        console.error("Stack Trace:", error.stack);
+      } else {
+        console.error("ข้อผิดพลาดที่ไม่รู้จัก:", error);
+      }
+    } finally {
+      return true
+    }
+
   }
   const getAllMembers = () => {
     const offset = (activePageMember - 1) * itemsPerPageMember
@@ -494,44 +526,60 @@ const DefaultLayout = (props: any) => {
       sort: "id",
     }
     //setLoadding(true)
-    setSpinUpdate(true)
-    Api.getAllMember(data)
-      .then((res: any) => {
-        if (res?.data?.success == true) {
-          setLoadding(false)
-          setIsDataMember(res?.data?.data?.rows)
-          setRecordsMember(res?.data?.data?.count);
-          setStateMember(res?.data?.data?.rows)
+    try {
+      Api.getAllMember(data)
+        .then((res: any) => {
+          if (res?.data?.success == true) {
+            let isNow = moment().format('HH:mm:ss')
+            console.log("อัพเดทข้อมูล Member สำเร็จเมื่อ :" + " " + isNow);
+            setOpenUpdate(false)
+            setLoadding(false)
+            setIsDataMember(res?.data?.data?.rows)
+            setRecordsMember(res?.data?.data?.count);
+            setStateMember(res?.data?.data?.rows)
 
-          setIsDataNewMember(res?.data?.newMembersToday?.rows)
-          setRecordsNewMember(res?.data?.newMembersToday?.count)
-          setNofNewMember(res?.data?.newMembersToday?.count)
-          setSpinUpdate(false)
-        } else {
+            setIsDataNewMember(res?.data?.newMembersToday?.rows)
+            setRecordsNewMember(res?.data?.newMembersToday?.count)
+            setNofNewMember(res?.data?.newMembersToday?.count)
+            setSpinUpdate(false)
+          } else {
+            setSpinUpdate(false)
+            setLoadding(false)
+            error(res?.data?.message)
+          }
+        })
+        .catch((err: any) => {
           setSpinUpdate(false)
           setLoadding(false)
-          error(res?.data?.message)
-        }
-      })
-      .catch((err: any) => {
-        setSpinUpdate(false)
-        setLoadding(false)
-        if (err.status == 401) {
-          Toast.fire({
-            icon: "info",
-            title: t('expTimesession')
-          });
-          Logout()
-          navigate("/login");
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        } if (err.code == "ERR_NETWORK") {
-          error(err.message)
-        } else {
-          console.log(err)
-        }
-      })
+          if (err.status == 401) {
+            Toast.fire({
+              icon: "info",
+              title: t('expTimesession')
+            });
+            Logout()
+            navigate("/login");
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          } if (err.code == "ERR_NETWORK") {
+            error(err.message)
+          } else {
+            console.log(err)
+          }
+        });
+    } catch (error: any) {
+      setOpenUpdate(false)
+      setLoadding(false)
+      if (error instanceof Error) {
+        console.error("ชื่อข้อผิดพลาด:", error.name);
+        console.error("ข้อความข้อผิดพลาด:", error.message);
+        console.error("Stack Trace:", error.stack);
+      } else {
+        console.error("ข้อผิดพลาดที่ไม่รู้จัก:", error);
+      }
+    } finally {
+      return true
+    }
   }
   const getallAdmins = () => {
     //setLoadding(true)
@@ -580,42 +628,6 @@ const DefaultLayout = (props: any) => {
         } else {
           setLoadding(false)
           setSpinUpdate(false)
-          error(res?.data?.message)
-        }
-      })
-      .catch((err: any) => {
-        setSpinUpdate(false)
-        setLoadding(false)
-        if (err.status == 401) {
-          Toast.fire({
-            icon: "info",
-            title: t('expTimesession')
-          });
-          Logout()
-          navigate("/login");
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        } if (err.code == "ERR_NETWORK") {
-          error(err.message)
-        } else {
-          console.log(err)
-        }
-      })
-  }
-  const getTransactions = () => {
-    //setLoadding(true)
-    setSpinUpdate(true)
-    Api.getTransaction()
-      .then((res: any) => {
-        if (res?.data?.success == true) {
-          setLoadding(false)
-          setSpinUpdate(false)
-          setTransaction(res?.data)
-
-        } else {
-          setSpinUpdate(false)
-          setLoadding(false)
           error(res?.data?.message)
         }
       })
@@ -967,8 +979,42 @@ const DefaultLayout = (props: any) => {
         }
       })
   }
+  const getTransactions = () => {
+    //setLoadding(true)
+    setSpinUpdate(true)
+    Api.getTransaction()
+      .then((res: any) => {
+        if (res?.data?.success == true) {
+          setLoadding(false)
+          setSpinUpdate(false)
+          setTransaction(res?.data)
 
-
+        } else {
+          setSpinUpdate(false)
+          setLoadding(false)
+          error(res?.data?.message)
+        }
+      })
+      .catch((err: any) => {
+        setSpinUpdate(false)
+        setLoadding(false)
+        if (err.status == 401) {
+          Toast.fire({
+            icon: "info",
+            title: t('expTimesession')
+          });
+          Logout()
+          navigate("/login");
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        } if (err.code == "ERR_NETWORK") {
+          error(err.message)
+        } else {
+          console.log(err)
+        }
+      })
+  }
   // *****************************//
   function fillterRole(item: any, id: any) {
     if (!item || !id) {
@@ -1077,24 +1123,22 @@ const DefaultLayout = (props: any) => {
         </>;
         const Notification_message = messageContent;
         openNotificationWithIcon2('warning', Notification_message, mute, minAmount);
-        console.log("!!Account balance is low.");
+        console.log("!!ยอดเงินในบัญชีเหลือน้อย");
       } else {
-        console.log("Account balance is sufficient.");
+        return 
       }
     }
   }
   const itemContex: any = {
+    getBankList,
     dataMessage,
     newMessage,
     setNewMessage,
-    // handleSendMessage,
-
     setLoadding,
     getBankAccount,
     getAllMembers,
     getallAdmins,
     getListOfBankAccount,
-    getTransactions,
     getWithdrawalTransactions,
     getDepositTransactions,
     gegetdataMerchangs,
@@ -1122,7 +1166,6 @@ const DefaultLayout = (props: any) => {
     setIsDataItemDeposit,
     setActivePage,
     setItemsPerPage,
-
     // Withdraws
     get_data_wit,
     itemsPerPageWit,
@@ -1137,7 +1180,8 @@ const DefaultLayout = (props: any) => {
     setIsDataItemWithdraw,
     setIsDataItemPendingWithdraw,
     setRecordsPandingWithdraws,
-
+    setOpenUpdate,
+    openUpdate,
     loadding,
     spinUpdate,
     bankList,
@@ -1165,93 +1209,33 @@ const DefaultLayout = (props: any) => {
 
     nofDep,
     nofPendingDep,
-
-
     // All Member
     stateMember,
     recordsMember, recordsNewMember, isDataMember, isDataNewMember,
-    nofNewMember, activePageMember, setActivePageMember, itemsPerPageMember, setItemsPerPageMember, 
+    nofNewMember, activePageMember, setActivePageMember, itemsPerPageMember, setItemsPerPageMember,
   }
-
-  useEffect(() => {
-    !localStorage.getItem("autoUpdate") ? localStorage.setItem("autoUpdate", "on") : localStorage.getItem("autoUpdate");
-  }, [])
-  useEffect(() => {
-    bank_closed_system_maintenance?.()
-  }, [])
-  useEffect(() => {
-    getBankAccount?.();
-  }, [])
-  useEffect(() => {
-    get_data_deposit();
-  }, [activePage, itemsPerPage])
-  useEffect(() => {
-    get_data_wit?.();
-  }, [activePageWit, itemsPerPageWit,])
-
-  useEffect(() => {
-    getBankList?.()
-  }, [])
-  useEffect(() => {
-    getall_BankGrop?.()
-  }, [])
-  useEffect(() => {
-    getDataProfileAdmin?.()
-  }, [])
-  useEffect(() => {
-    getallAdmins?.()
-  }, [])
-  useEffect(() => {
-    gegetdataMerchangs?.()
-  }, [])
-  useEffect(() => {
-    getDataPermissions?.()
-  }, [])
-  useEffect(() => {
-    getdata_bankPlatforms?.()
-  }, [])
-  useEffect(() => {
-    getall_Transaction_manual?.()
-  }, [])
-  useEffect(() => {
-    getAllMembers?.()
-  }, [])
   // *************** socket **************//
-
-
   let sytem: any = document.getElementById("sytem")
   if (sytem) {
     let data = stateBankGrop?.data
     let i = data?.filter((bank: any) => bank?.isActive === true)
     sytem.innerHTML = !i[0]?.name ? "No connection" : i[0]?.name == "Bankstandard" ? "PAY888-V2" : i[0]?.name == "Gateway" ? "GATEWAY" : "other"
   }
-
-  function isAppInstalled(): boolean {
-    return window.matchMedia('(display-mode: standalone)').matches;
+  let sendData:any = {
+    nofWit: nofWit,
+    nofDep: nofDep,
+    nofPendingWit: nofPendingWit,
+    nofPendingDep: nofPendingDep,
+    recordsPandingWithdraws: recordsPandingWithdraws,
+    nofNewMember: nofNewMember,
   }
-
-  // Example usage:
-  if (isAppInstalled()) {
-    console.log('The PWA is installed');
-  } else {
-    console.log('The PWA is not currently installed');
-  }
-  useEffect(() => {
-    if (isAppInstalled()) {
-      console.log('App is installed (in component).');
-    } else {
-      console.log('App is not installed (in component).');
-    }
-  }, [isAppInstalled(), sytem]);
-
   return (
     <>
+      <AppSidebar item={sendData} />
       <DataContext.Provider value={itemContex}>
         {contextHolder2}
-        <AppSidebar />
         {contextHolder}
         <div className="wrapper d-flex flex-column min-vh-100">
-          {/* <AddLoadding status={loadding} /> */}
           <AppHeader />
           <div className="body flex-grow-1">
             <div className="main-containt">

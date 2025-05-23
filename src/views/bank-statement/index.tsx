@@ -69,25 +69,21 @@ const Bank_statement = () => {
     const [loadding, setLoadding]: any = useState(true)
     useEffect(() => {
         const fetchData = async () => {
-            setLoadding(true); // Set loading to true before fetching
             try {
                 await Promise.all([
-                    itemContext?.getBankAccount?.(),
                     itemContext?.getdata_BankAccount?.(),
-                    itemContext?.getall_BankGrop?.(),
                 ]);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                setLoadding(false); // Set loading to false after fetching (success or error)
+                return
             }
         };
-        fetchData();
-    }, [])
-
-    // const [state, setState] = useReducer((state: any, newState: any) => ({ ...state, ...newState }), {
-    //     data: [],
-    // })
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, 2 * 60 * 1000);
+        return () => clearInterval(intervalId);
+    }, []);
     const [stateGroup, setStateGroup] = useReducer((stateGroup: any, newStateGroup: any) => ({ ...stateGroup, ...newStateGroup }), {
         data: [],
     })
@@ -154,11 +150,7 @@ const Bank_statement = () => {
     const [currentPage, setCurrentPage] = useState(1)
 
     // console.log(itemContext?.statement)
-    function handleChenkStatusBank(status: any) {
-        if (status == "") {
-            return
-        }
-    }
+
     const getIconsView = (icon: any) => {
         switch (icon) {
             case 'Active':

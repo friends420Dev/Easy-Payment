@@ -12,7 +12,7 @@ import moment from 'moment';
 export type SizeType = 'small' | 'middle' | 'large' | undefined;
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
-import { socketNotifydep } from 'src/utils/socket';
+// import { socketNotifydep } from 'src/utils/socket';
 import { message, Space } from 'antd';
 import Swal from 'sweetalert2';
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
@@ -82,7 +82,7 @@ const AppBreadcrumb = () => {
         console.log("Auto update start.");
         setTimeout(async () => {
           itemContext?.setLoadding(false)
-          await updateData()
+          await itemContext?.updateData?.()
         }, 1000)
 
       } else if (event == "off") {
@@ -114,20 +114,19 @@ const AppBreadcrumb = () => {
   }
   async function UpdatingData() {
     setTimeout(async () => {
-      await updateData()
+      await itemContext?.updateData?.()
       await startUpdate();
     }, 1500)
   }
 
   useEffect(() => {
-
     if (isUpdating) {
       startUpdate();
     }
     return () => {
       stopUpdate();
     };
-  }, [isUpdating, updateData]);
+  }, [isUpdating]);
 
   // ****************  END FUNCTION Switch UPDATE DATA ***********************//
 
@@ -157,7 +156,7 @@ const AppBreadcrumb = () => {
       if (autoUpdate == "on") {
         setTimeout(async () => {
           itemContext?.setLoadding(false)
-          await updateData()
+          await itemContext?.updateData?.()
         }, 1000)
       } else {
         setTimeout(() => {
@@ -171,31 +170,38 @@ const AppBreadcrumb = () => {
 
   // *************** socket ***************//
 
-  useEffect(() => {
-    socketNotifydep.on('receive_message_ready_to_getdeposit', async (data: any) => {
-      if (switchAutoUpdate == "on") {
-        updateData?.()
-      } else {
-        console.log("AutoUpdate : " + switchAutoUpdate);
-      }
-    });
-    return () => {
-      socketNotifydep.off('receive_message_ready_to_getdeposit');
-    };
-  }, [loca, itemContext?.setActivePage?.(itemContext?.activePage), itemContext?.setActivePageWit?.(itemContext?.activePageWit)]);
+  // useEffect(() => {
+  //   socketNotifydep.on('receive_message_ready_to_getdeposit', async (data: any) => {
+  //     if (switchAutoUpdate == "on") {
+  //       updateData()
+  //       console.log("AutoUpdate : " + switchAutoUpdate);
+  //     } else {
+  //       console.log("AutoUpdate : " + switchAutoUpdate);
+  //     }
+  //   });
+  //   return () => {
+  //     socketNotifydep.off('receive_message_ready_to_getdeposit');
+  //   };
+  // }, [
+  //   loca,
+  //   itemContext?.activePage,
+  //   itemContext?.activePageWit,
+  //   itemContext?.currentLocation,
+  // ]);
 
   // *************** end socket ***************//
   // updateData
-  async function updateData() {
-    let params: any = loca;
+  function updateData() {
+    
+    let params = currentLocation;
     itemContext?.bank_closed_system_maintenance?.();
     itemContext?.getBankAccount?.()
     itemContext?.get_data_wit?.()
     itemContext?.get_data_deposit?.()
-    itemContext?.getAllMembers?.()
-    console.log(`pathName : ${params}`)
+    itemContext?.setActivePage?.(itemContext?.activePage)
+    itemContext?.setActivePageWit?.(itemContext?.activePageWit)
     
-    
+
 
     const now = dayjs();
     let isNow = moment().format('HH:mm:ss') //FormatTimeAgo(now)
@@ -216,7 +222,7 @@ const AppBreadcrumb = () => {
       itemContext?.getall_Transaction_manual?.()
     } else if (params == "/members") {
       console.log("AutoUpdate : Latest update  on :" + " " + isNow);
-     
+
     } else if (params == "/user-management/users") {
       console.log("AutoUpdate : Latest update  on :" + " " + isNow);
       itemContext?.getallAdmins?.()
@@ -249,7 +255,7 @@ const AppBreadcrumb = () => {
         <div className='col-6'>
           <div className="fs-2 fw-semibold d-flex" id='titleBreadcrumb'>
             <Flex gap="middle" align="end" className='w-100' vertical>
-              <UpdateBtn location={currentLocation} />
+              <UpdateBtn location={currentLocation} itemContext={itemContext} />
             </Flex>
           </div>
         </div>
@@ -274,7 +280,8 @@ const AppBreadcrumb = () => {
           <label className='mb-3'>
             <b>Auto Update : </b>
             <Switch
-              loading={itemContext?.loadding}
+              // loading={itemContext?.loadding}
+              disabled
               checkedChildren={<span style={{ display: "inline-flex" }}>{"เปิด"}</span>}
               unCheckedChildren={<span style={{ display: "inline-flex" }}>{"ปิด"}</span>}
               onChange={(e) => onChangSwitchAutoUpdate(e)}

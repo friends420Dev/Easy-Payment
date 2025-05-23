@@ -52,7 +52,6 @@ import { Avatar, Divider, Tooltip } from 'antd';
 // import io from 'socket.io-client';
 import config from 'src/config/app.config';
 // const socket = io(config?.apiURL);
-import { socketNotify } from 'src/utils/socket';
 import Swal from 'sweetalert2'
 interface Admin {
   name: string;
@@ -122,42 +121,42 @@ const AppHeader = () => {
   // }
   const [adminOnlineList, setAdminOnlineList] = useState<Admin[]>([]);
   const [onlineCount, setOnlineCount]: any = useState(0)
-  useEffect(() => {
-    // ดึงข้อมูลจาก localStorage เมื่อ component ถูก render ครั้งแรก
-    const storedOnlineUsers = localStorage.getItem('onlineUsers');
-    if (storedOnlineUsers) {
-      setAdminOnlineList(JSON.parse(storedOnlineUsers));
-    }
+  // useEffect(() => {
+  //   // ดึงข้อมูลจาก localStorage เมื่อ component ถูก render ครั้งแรก
+  //   const storedOnlineUsers = localStorage.getItem('onlineUsers');
+  //   if (storedOnlineUsers) {
+  //     setAdminOnlineList(JSON.parse(storedOnlineUsers));
+  //   }
 
-    const handleOnline = (admin: Admin) => {
-      setAdminOnlineList((prevList) => {
-        if (!prevList.some((a) => a?.name === admin?.name)) {
-          const updatedList = [...prevList, admin];
-          // เก็บข้อมูลลง sessionStorage
-          localStorage.setItem('onlineUsers', JSON.stringify(updatedList));
-          return updatedList;
-        }
-        return prevList;
-      });
-    };
+  //   const handleOnline = (admin: Admin) => {
+  //     setAdminOnlineList((prevList) => {
+  //       if (!prevList.some((a) => a?.name === admin?.name)) {
+  //         const updatedList = [...prevList, admin];
+  //         // เก็บข้อมูลลง sessionStorage
+  //         localStorage.setItem('onlineUsers', JSON.stringify(updatedList));
+  //         return updatedList;
+  //       }
+  //       return prevList;
+  //     });
+  //   };
 
-    const handleOffline = (admin: Admin) => {
-      setAdminOnlineList((prevList) => {
-        const updatedList = prevList.filter((a) => a?.name !== admin?.name);
-        // เก็บข้อมูลลง sessionStorage
-        localStorage.setItem('onlineUsers', JSON.stringify(updatedList));
-        return updatedList;
-      });
-    };
+  //   const handleOffline = (admin: Admin) => {
+  //     setAdminOnlineList((prevList) => {
+  //       const updatedList = prevList.filter((a) => a?.name !== admin?.name);
+  //       // เก็บข้อมูลลง sessionStorage
+  //       localStorage.setItem('onlineUsers', JSON.stringify(updatedList));
+  //       return updatedList;
+  //     });
+  //   };
 
-    socketNotify.on('Online', handleOnline);
-    socketNotify.on('Offline', handleOffline);
+  //   socketNotify.on('Online', handleOnline);
+  //   socketNotify.on('Offline', handleOffline);
 
-    return () => {
-      socketNotify.off('Online', handleOnline);
-      socketNotify.off('Offline', handleOffline);
-    };
-  }, []);
+  //   return () => {
+  //     socketNotify.off('Online', handleOnline);
+  //     socketNotify.off('Offline', handleOffline);
+  //   };
+  // }, []);
 
   function AdminOnlineAvatars({ adminOnline }: any) {
     return (

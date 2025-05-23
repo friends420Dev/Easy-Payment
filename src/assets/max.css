@@ -4,9 +4,6 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.spinner-grow {
-    background-color: #2196F3 !important;
-}
 .table.timeTable > thead tr th {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2091,6 +2088,9 @@ a {
 .bg-dark-gradient {
     background-color: #001529!important;
     background-image: linear-gradient(45deg, #001529 0%, #001529 100%) !important;
+}
+.spinner-grow {
+    background-color: #2196F3 !important;
 }
 :root, [data-coreui-theme=light] {
     --cui-blue: #0d6efd;

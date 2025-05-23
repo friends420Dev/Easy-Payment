@@ -151,69 +151,12 @@ export type TypePermission = {
 }
 import { DataContext } from 'src/layout/DefaultLayout';
 // import { socketNotifydep } from 'src/utils/socket';
-const AppSidebar = () => {
-  const itemContext: any = useContext<any>(DataContext)
-  const data: any = {
-    id: 1,
-    createdAt: "2025-02-14T15:38:45.000Z",
-    isPublic: true,
-    name: "Owner",
-    merchantId: 6,
-    uuid: "53191cc4-5e57-4ce9-bc27-4d6a10beeb90",
-    roleName: "GBP Vegas Owner",
-    permissions: [
-      {
-        "roleId": 39,
-        "permissionId": 1,
-        "isPublic": 1,
-        "createdAt": "2025-02-14T15:38:45.000Z",
-        "updatedAt": "2025-04-16T08:29:21.000Z",
-        "permission": {
-          "id": 1,
-          "name": "dashboard read",
-          "description": "สามารถดูสถานะบัญชี Dashboard",
-          "uuid": "3a2959db-a276-45d2-a700-5f2fbf67f289",
-          "action": "read",
-          "resource": "Dashboard",
-          "attributes": "*",
-          "conditions": ['Owner', 'Subowner', 'Head_Accounting', 'Accounting', 'Cs', 'Head_Cs', 'Manager'],
-          "flatpermission": "",
-          "ispublic": true,
-          "created_at": "2025-02-08T12:05:16.000Z",
-          "updated_at": "2025-02-09T06:18:08.000Z"
-        }
-      },
-      {
-        "roleId": 39,
-        "permissionId": 1,
-        "isPublic": 1,
-        "createdAt": "2025-02-14T15:38:45.000Z",
-        "updatedAt": "2025-04-16T08:29:21.000Z",
-        "permission": {
-          "id": 2,
-          "name": "dashboard read2",
-          "description": "สามารถอัพเดทสถานะบัญชี Dashboard",
-          "uuid": "3a2959db-a276-45d2-a700-5f2fbf67f2845",
-          "action": "read",
-          "resource": "Dashboard",
-          "attributes": "*",
-          "conditions": ['Owner', 'Subowner', 'Head_Accounting', 'Accounting'],
-          "flatpermission": "",
-          "ispublic": true,
-          "created_at": "2025-02-08T12:05:16.000Z",
-          "updated_at": "2025-02-09T06:18:08.000Z"
-        }
-      },
-      
-    ]
-
-  }
+const AppSidebar = ({item}:any) => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state: State) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state: State) => state.sidebarShow)
   var Web_name = config?.web_name;
   const [navData, setNavData] = React.useState([]);
-  const [DataPermissions, setDataPermissions] = React.useState([]);
   const [DataRoleAdmin, setDataRoleAdmin]: any = React.useState("");
   const [stateRole, setStateRole]: any = React.useReducer(
     (stateRole: any, newState_Role: any) => ({ ...stateRole, ...newState_Role }),
@@ -221,12 +164,14 @@ const AppSidebar = () => {
       data: [],
     },
   );
-
   useEffect(() => {
-    usersData.nav_menu(data, itemContext)
-      .then((data: any) => setNavData(data?.data))
-      .catch((error: any) => console.error(error));
-  }, [itemContext]);
+    const fetchData = () => {
+      usersData.nav_menu(item) // ปรับ data ให้เหมาะสมกับที่คุณต้องการ
+        .then((data: any) => setNavData(data?.data))
+        .catch((error: any) => console.error(error));
+    };
+    fetchData();
+  }, [item]);
   useEffect(() => {
     Apiauth.getProfileAdmin()
       .then((res: any) => setDataRoleAdmin(res?.data))
@@ -238,13 +183,11 @@ const AppSidebar = () => {
       .catch((error: any) => console.error(error));
   }, []);
   function extractRTB(text: any) {
-    // ตรวจสอบว่าสตริงมีคำว่า 'RTB' อยู่หรือไม่
     const index = text.indexOf('PAY');
     if (index != -1) {
-      // ถ้าพบ 'RTB' ให้ตัดสตริงตั้งแต่ตำแหน่งที่พบ 'RTB' จนถึง 3 ตัวอักษร
-      return text.substring(index, index + 3)// + "88";
+      return text.substring(index, index + 3)
     } else {
-      return 'No data'; // หรือส่งค่าอื่นๆ ตามความเหมาะสม เช่น null, undefined
+      return 'No data';
     }
   }
   function filterUser(user: User, role: Role) {
@@ -260,7 +203,6 @@ const AppSidebar = () => {
     let permissions = filterRoleAdmin;
     return { ...user, ...permissions }
   }
-
   const isUser: any = filterUser(DataRoleAdmin, stateRole);
   const menus: any = navData;
   var i = 0
@@ -279,7 +221,6 @@ const AppSidebar = () => {
   const accessibleMenus: any = filterMenusByUser(menus, user);
   var isMenu: any = accessibleMenus
   // console.log(isMenu)
-
   return (
     <CSidebar
       className="bg-dark-gradient border-end"
@@ -311,5 +252,4 @@ const AppSidebar = () => {
     </CSidebar>
   )
 }
-
 export default AppSidebar

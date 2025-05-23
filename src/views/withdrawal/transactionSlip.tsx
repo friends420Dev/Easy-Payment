@@ -74,7 +74,6 @@ export const downloadTransferInfoAsImage = ({ params }: any) => {
     document.body.removeChild(downloadLink);
 }
 const TransactionSlip = ({ SlipData, config, openNotification }: any) => {
-    console.log(SlipData)
     const [stateCopy, setStateCopy] = useState(false)
     const handleCopy = (text: any) => {
         navigator?.clipboard?.writeText(text)

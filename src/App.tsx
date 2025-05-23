@@ -24,34 +24,34 @@ const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const Verify = React.lazy(() => import('./views/pages/verify/Verify'))
 const Change_password = React.lazy(() => import('./views/pages/change_password/change_password'))
+import { unregister } from './serviceWorker'
 
 interface ColorModeResult {
   isColorModeSet: any;
   setColorMode: (mode: string) => void;
 }
 // Email App
-const EmailApp = React.lazy(() => import('./views/apps/email/EmailApp'))
+const EmailApp: any = React.lazy(() => import('./views/apps/email/EmailApp'))
 // import { AddLoadding } from './components';
 const App = () => {
-  const { isColorModeSet, setColorMode }: ColorModeResult = useColorModes(
-    'coreui-pro-react-admin-template-theme-modern',
-  );
-  const storedTheme = useSelector((state: State) => state?.theme)
-  const urlParams1 = new URLSearchParams(window.location.href.split('?')[1])
-  
+  const { isColorModeSet, setColorMode }: ColorModeResult = useColorModes?.('coreui-pro-react-admin-template-theme-modern',);
+  const storedTheme: any = useSelector((state: State) => state?.theme)
+  const urlParams1: any = new URLSearchParams(window.location.href.split('?')[1])
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    let theme = urlParams.get('theme')
+    const urlParams: any = new URLSearchParams(window.location.href.split('?')[1])
+    let theme: any = urlParams.get?.('theme')
     if (theme !== null && theme.match(/^[A-Za-z0-9\s]+/)) {
       theme = theme.match(/^[A-Za-z0-9\s]+/)![0]
     }
     if (theme) {
-      setColorMode(theme)
+      setColorMode?.(theme)
     }
-    if (isColorModeSet()) {
+    if (isColorModeSet?.()) {
       return
     }
-    setColorMode(storedTheme)
+    setColorMode?.(storedTheme);
+    unregister();
+
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -66,7 +66,7 @@ const App = () => {
       >
         <Routes>
           {/* <Route path={`/getlogin`} element={<Change_password />} /> */}
-          <Route path="/login" element={<Login old_username={urlParams1.get('username')} old_password={urlParams1.get('password')}  />} />
+          <Route path="/login" element={<Login old_username={urlParams1.get('username')} old_password={urlParams1.get('password')} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/404" element={<Page404 />} />
           <Route path="/announcement" element={<Announcement />} />
@@ -85,4 +85,5 @@ const App = () => {
     </HashRouter>
   )
 }
+
 export default App
