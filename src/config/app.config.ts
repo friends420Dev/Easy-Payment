@@ -1,5 +1,5 @@
 const config = {
-  apiURL: "https://inspire789.payment-backend88.com", // ทดสอบ
+  apiURL: "https://main.krungthaipay.com", // ทดสอบ
   apiURL_localhost: "http://localhost:1337",
   apiURLBOT: "https://deposit.payment-backend88.com",
   apiURL_bankPlatform: "http://45.91.135.43:1339",
