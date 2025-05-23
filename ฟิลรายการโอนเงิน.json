@@ -1,0 +1,112 @@
+[
+    {
+        "component": "CNavItem",
+        "name": {
+            "_isReactElement": true,
+            "type": {
+                "$$typeof": "Symbol(react.forward_ref)",
+                "render": {
+                    "displayName": "Translation"
+                }
+            },
+            "props": {
+                "children": [
+                    {
+                        "_isReactElement": true,
+                        "type": {
+                            "$$typeof": "Symbol(react.element)",
+                            "type": "span"
+                        },
+                        "props": {
+                            "children": "Bank account status"
+                        },
+                        "_owner": null
+                    }
+                ]
+            },
+            "_owner": null
+        },
+        "to": "/dashboard",
+        "icon": {
+            "_isReactElement": true,
+            "type": {
+                "$$typeof": "Symbol(react.element)",
+                "type": "i"
+            },
+            "props": {
+                "className": "nav-icon c-icon cil-speedometer"
+            },
+            "_owner": null
+        },
+        "access": {
+            "role": [
+                "Owner",
+                "Subowner",
+                "Head_Accounting",
+                "Accounting",
+                "Cs",
+                "Head_Cs",
+                "Manager"
+            ],
+            "isPublic": true,
+            "resource": [
+                "Dashboard"
+            ]
+        }
+    },
+    {
+        "component": "CNavItem",
+        "name": {
+            "_isReactElement": true,
+            "type": {
+                "$$typeof": "Symbol(react.forward_ref)",
+                "render": {
+                    "displayName": "Translation"
+                }
+            },
+            "props": {
+                "children": [
+                    {
+                        "_isReactElement": true,
+                        "type": {
+                            "$$typeof": "Symbol(react.element)",
+                            "type": "span"
+                        },
+                        "props": {
+                            "children": "Deposit List"
+                        },
+                        "_owner": null
+                    }
+                ]
+            },
+            "_owner": null
+        },
+        "to": "/deposit/deposit_list",
+        "icon": {
+            "_isReactElement": true,
+            "type": {
+                "$$typeof": "Symbol(react.element)",
+                "type": "i"
+            },
+            "props": {
+                "className": "nav-icon c-icon cil-arrow-right"
+            },
+            "_owner": null
+        },
+        "access": {
+            "role": [
+                "Owner",
+                "Subowner",
+                "Head_Accounting",
+                "Accounting",
+                "Cs",
+                "Head_Cs",
+                "Manager"
+            ],
+            "isPublic": true,
+            "resource": [
+                "BankAccount"
+            ]
+        }
+    }
+]

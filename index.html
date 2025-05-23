@@ -1,0 +1,61 @@
+<!doctype html>
+<div>
+  <div>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Noto+Sans+Thai+Looped:wght@100;200;300;400;500;600;700;800;900&family=Noto+Sans+Thai:wdth,wght@62.5..100,100..900&family=Noto+Serif+Thai:wght@100..900&display=swap"
+      rel="stylesheet" />
+  </div>
+
+</div>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="Link login Admin PAYMENT88." />
+  <meta name="author" content="Łukasz Holeczek" />
+  <meta name="keyword" content="Admin,Template,SCSS,RWD,Dashboard,React" />
+  <title>PAYMENT888-V2 SYSTEM</title>
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="PAYMENT88" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<style>
+  .mnaxtest {
+    font-family: "Bai Jamjuree", Helvetica, Arial, sans-serif !important;
+    font-feature-settings: "tnum", "tnum" !important;
+    font-variant: tabular -nums !important
+  }
+</style>
+<body class="mnaxtest">
+  <noscript> You need to enable JavaScript to run this app </noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+<script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+        return navigator.serviceWorker.ready;
+      })
+      .then(serviceWorkerRegistration => {
+        console.log('Service Worker is ready:', serviceWorkerRegistration.active.state);
+      })
+      .catch(error => console.error('Service Worker registration failed:', error));
+  }
+</script>
+
+</html>
