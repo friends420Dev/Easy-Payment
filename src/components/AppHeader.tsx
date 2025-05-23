@@ -63,7 +63,7 @@ interface Admin {
 }
 const AppHeader = () => {
   const headerRef = useRef<HTMLDivElement>(null)
-  const { colorMode, setColorMode } = useColorModes('coreui-pro-react-admin-template-theme-modern')
+  // const { colorMode, setColorMode }:any = useColorModes('coreui-pro-react-admin-template-theme-modern')
   const { i18n, t } = useTranslation()
   const navigate: any = useNavigate()
 
