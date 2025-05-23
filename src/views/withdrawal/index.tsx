@@ -762,10 +762,19 @@ const Withdrawal = () => {
         const targetWord: any = msg?.split(" ").pop();
         return targetWord
     }
-    function extractWithdrawalInfo(text: any) {
+    function getTargetStatus(status: any) {
+        if (!status) {
+            return false
+        }
+        if (status == "success") {
+            return true
+        }
+        return false
+    }
+    function extractWithdrawalInfo(text: any, status: any) {
         const prefix = 'รอถอน manual โดย แอดมิน';
-        if (text.startsWith(prefix)) {
-            return `แอดมิน ${getTargetWord(text)} กำลังทำรายการ...`;
+        if (text?.startsWith?.(prefix)) {
+            return <>{getTargetStatus?.(status) ? <>Manual system By <b>{getTargetWord?.(text)}</b></> : `แอดมิน ${getTargetWord?.(text)} กำลังทำรายการ...`}</>;
         } else {
             return <em style={{ color: "#88888880" }}>{t("No data")}</em>;
         }
@@ -781,7 +790,7 @@ const Withdrawal = () => {
         } else if (txt == "อนุมัติถอน รอดำเนินการ") {
             tx = `Approved (${status})`
         } else {
-            tx = extractWithdrawalInfo(txt)
+            tx = extractWithdrawalInfo(txt, status)
         }
         return tx
     }

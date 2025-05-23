@@ -242,8 +242,8 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
     }
     function extractWithdrawalInfo(text: any, status: any) {
         const prefix = 'รอถอน manual โดย แอดมิน';
-        if (text.startsWith(prefix)) {
-            return <>{getTargetStatus(status) ? <>Manual system By <b>{getTargetWord(text)}</b></> : `แอดมิน ${getTargetWord(text)} กำลังทำรายการ...`}</>;
+        if (text?.startsWith?.(prefix)) {
+            return <>{getTargetStatus?.(status) ? <>Manual system By <b>{getTargetWord?.(text)}</b></> : `แอดมิน ${getTargetWord?.(text)} กำลังทำรายการ...`}</>;
         } else {
             return <em style={{ color: "#88888880" }}>{t("No data")}</em>;
         }
