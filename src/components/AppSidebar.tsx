@@ -234,10 +234,11 @@ const AppSidebar = ({item}:any) => {
     >
       <CSidebarHeader className="border-bottom">
         <CSidebarBrand className='w-100 d-flex' style={{ justifyContent: "center", alignItems: "center" }} as={NavLink} to="/">
-          {/* <CIcon customClassName="sidebar-brand-full me-2" style={{fill:"#e2e2e3"}} icon={cibCcAmazonPay} height={24} /> */}
-          <img src="https://img2.pic.in.th/pic/logo-pay88.png" className='sidebar-brand-full me-2 img-logo' height={45} alt="logo pay88" border="0" />
-          {/* <b className='sidebar-brand-full '>{Web_name}</b> */}
-          <b className='sidebar-brand-narrow text-center'>{extractRTB(Web_name)}</b>
+          <CIcon customClassName="sidebar-brand-full me-2" style={{fill:"#1677ff"}} icon={cibCcAmazonPay} height={30} />
+          {/* <img src="https://img5.pic.in.th/file/secure-sv1/logo-easy-payment.md.png" className='sidebar-brand-full me-2 img-logo' height={45} alt="logo pay88" border="0" /> */}
+          <b className='sidebar-brand-full ' style={{color:"#1677ff"}}>{Web_name}</b>
+          {/* <b className='sidebar-brand-narrow text-center'>{extractRTB(Web_name)}</b> */}
+          <CIcon customClassName="sidebar-brand-narrow text-center" style={{fill:"#1677ff"}} icon={cibCcAmazonPay} height={30} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

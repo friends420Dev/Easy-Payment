@@ -1,6 +1,6 @@
 {
-  "name": "backend_payment88_system",
-  "version": "5.3.7.5.s5",
+  "name": "easy_payment",
+  "version": "v1.1.0.0.1",
   "description": "CoreUI PRO React Admin Template TypeScript",
   "config": {
     "theme": "modern",
@@ -9,14 +9,14 @@
   },
   "homepage": ".",
   "bugs": {
-    "url": "https://github.com/friends420Dev/BACKEND-RTB-PAYMENT-SYSTEM/issues"
+    "url": "https://github.com/friends420Dev/Easy-Payment"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:friends420Dev/BACKEND-RTB-PAYMENT-SYSTEM"
+    "url": "git@github.com:friends420Dev/Easy-Payment"
   },
   "license": "SEE LICENSE IN LICENSE",
-  "author": "BACKEND-RTB-PAYMENT-SYSTEM-TEAM (https://github.com/friends420Dev/BACKEND-RTB-PAYMENT-SYSTEM/issues/1)",
+  "author": "Easy-Payment (https://github.com/friends420Dev/Easy-Payment/issues/1)",
   "scripts": {
     "build": "vite build",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
@@ -86,7 +86,7 @@
     "react-toastify": "^11.0.2",
     "redux": "5.0.1",
     "sharp": "^0.34.1",
-    "simplebar-react": "^3.2.6",
+    "simplebar-react": "^3.3.1",
     "socket.io-client": "^4.8.1",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.15.2",

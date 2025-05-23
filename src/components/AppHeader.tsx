@@ -63,7 +63,7 @@ interface Admin {
 }
 const AppHeader = () => {
   const headerRef = useRef<HTMLDivElement>(null)
-  // const { colorMode, setColorMode } = useColorModes('coreui-pro-react-admin-template-theme-modern')
+  const { colorMode, setColorMode } = useColorModes('coreui-pro-react-admin-template-theme-modern')
   const { i18n, t } = useTranslation()
   const navigate: any = useNavigate()
 
@@ -219,8 +219,8 @@ const AppHeader = () => {
     return (
       <Alert
         banner
-        style={{ backgroundColor: '#d6d7d96e', color: '#616161', fontWeight: "700" }}
-        icon={<SoundOutlined style={{ color: "#616161" }} />}
+        style={{ backgroundColor: 'rgb(214 215 217 / 13%)', color: '#fff', fontWeight: "700" }}
+        icon={<SoundOutlined style={{ color: "#fff" }} />}
         // message={maintenanceMessage}
         message={
           <Marquee pauseOnHover gradient={false} speed={100} >
@@ -315,7 +315,7 @@ const AppHeader = () => {
             </CDropdownMenu>
           </CDropdown>
           {/* โหมด มึด/สว่าง */}
-          {/* <CDropdown variant="nav-item" className='d-none' placement="bottom-end">
+          {/* <CDropdown variant="nav-item" className='' placement="bottom-end">
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
                 <CIcon icon={cilMoon} size="lg" />
@@ -364,7 +364,7 @@ const AppHeader = () => {
           onClick={() => dispatch({ type: 'set', asideShow: !asideShow })}
           style={{ marginInlineEnd: '-12px' }}
         >
-          <CIcon icon={cilSettings} size="lg" />
+          <CIcon style={{color:"#fff"}} icon={cilSettings} size="lg" />
         </CHeaderToggler>
       </CContainer>
     </CHeader>
