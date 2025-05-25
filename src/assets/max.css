@@ -1201,7 +1201,10 @@ tfoot {
   text-align: right;
   vertical-align: middle;
 }
-
+[data-coreui-theme=dark] .dark\:text-body, [data-coreui-theme=dark] .dark\:text-body:not([class*="dark:"]), .text-body {
+    --cui-text-opacity: 1;
+    color: #fff, var(--cui-text-opacity) !important;
+}
 .sidebar-nav .nav-link {
   line-height: 2;
   transition:

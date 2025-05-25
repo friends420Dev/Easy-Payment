@@ -60,7 +60,7 @@ const AppHeaderDropdown = () => {
         </CDropdownToggle>
         <CDropdownMenu className="pt-0">
           <CDropdownHeader className="bg-body-secondary text-center text-body-secondary fw-semibold rounded-top mb-2">
-            <li style={{ display: "flex", justifyContent: "flex-start" }}><ApiOutlined className='me-2' style={{ fontSize: "16px" }} /> <span className='me-2' id='sytem'></span>{t(" - V.")} {config?.version}</li>
+            <li style={{ display: "flex", justifyContent: "flex-start" }}><ApiOutlined className='me-2' style={{ fontSize: "16px" }} /> <span className='me-2' id='sytem'></span> {config?.version}</li>
           </CDropdownHeader>
           <CDropdownItem onClick={() => window.location.assign("/#/user-management/profile")}>
             <CIcon icon={cilSettings} className="me-2" />

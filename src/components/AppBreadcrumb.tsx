@@ -275,7 +275,7 @@ const AppBreadcrumb = () => {
           )
         })}
       </CBreadcrumb>
-      <Flex gap="small" align="flex-end" justify='center' vertical>
+      <Flex gap="small" align="flex-end" justify='center' className='d-none' vertical>
         <Tooltip title="เปิด/ปิด ฟังชั่นอัพเดทข้อมูลอัตโนมัติ" placement="left">
           <label className='mb-3'>
             <b>Auto Update : </b>

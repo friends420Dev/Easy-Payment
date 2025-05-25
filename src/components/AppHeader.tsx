@@ -209,8 +209,8 @@ const AppHeader = () => {
         banner
         id='dateTime'
         className='dateTime'
-        style={{ backgroundColor: '#d6d7d96e', color: '#616161', fontWeight: "700" }}
-        icon={<ClockCircleOutlined style={{ color: "#616161" }} />}
+        style={{ backgroundColor: 'rgb(214 215 217 / 13%)', color: '#fff', fontWeight: "700" }}
+        icon={<ClockCircleOutlined style={{ color: "#fff" }} />}
         message={
           <><span id='demo'></span></>}
       />

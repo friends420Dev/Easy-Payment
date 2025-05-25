@@ -417,6 +417,9 @@
     "Activity Report Totale": "รายงานกิจกรรมทั้งหมด",
     "Status Account": "สถานะบัญชี",
     "Create by":"ทำรายการโดย",
+    "Recipient Account":"บัญชีผู้รับ",
+    "Recipient Name":"ชื่อผู้รับ",
+    "Recipient Bank":"ธนาคารผู้รับ",
     "Instruction":"คู่มือการใช้งาน"
 
 

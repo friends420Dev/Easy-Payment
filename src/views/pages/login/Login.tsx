@@ -244,7 +244,7 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
     fetch("https://api.ipify.org?format=json")
       .then((response) => response.json())
       .then((result) => {
-        
+
         setIp({
           data: result.ip
         });
@@ -295,7 +295,7 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
         }
         if (res.data.success) {
           openNotification("success", res.data.message)
-          
+
           const payload = {
             token: res?.data?.token,
             userInfo: res?.data?.user,
@@ -356,7 +356,7 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
       content: `${msg}`,
     });
   };
- ;
+  ;
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -440,18 +440,17 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
           <CRow className="justify-content-center">
             <CCol md={8}>
               <CCardGroup>
-                <CCard className="p-4">
+                <CCard className="p-4" style={{background:"#1677ff", color:"#fff"}}>
                   <CCardBody>
                     <Form_verify showLoading={showLoading} setSpinning={setSpinning} showLoader={showLoader} userName={userName} ip={ip?.data} dataURL={dataURL} txtAlert={txtAlert} openNotification={openNotification} form_verify={form_verify} setForm_verify={setForm_verify} setForm_login={setForm_login} setForm_set={setForm_set} />
                     {form__login && <>
                       <CForm onSubmit={Login}>
-                        <p className="h1 fw-semibold mb-2 text-center" style={{ textTransform: "uppercase" }}>Sign In</p>
-                        <p className="h5 text-center mt-2">{config?.web_name}</p>
-                        <p className="mb-4 text-muted op-7 fw-normal text-center">
+                        <p className="h1 fw-semibold mb-2 text-center" style={{ textTransform: "uppercase", color:"#fff" }}>Sign In</p>
+                        <p className="h5 text-center mt-2" style={{  color:"#fff" }}>{config?.web_name}</p>
+                        <p className="mb-4  op-7 fw-normal text-center"  style={{  color:"#fff" }}>
                           Welcome back admin!
                         </p>
-
-                        <p className="text-body-secondary">Sign In to your account</p>
+                        <p className="" style={{  color:"#fff" }}>Sign In to your account</p>
 
                         <CInputGroup className="mb-3">
                           <CInputGroupText>
@@ -477,17 +476,15 @@ const Login = ({ old_password, old_username }: Change_passwordProps) => {
                           />
                         </CInputGroup>
                         <CRow>
-                          <CButton color="info" style={{ color: "#fff" }} disabled={Lang} type='submit' className="px-4">
+                          <Button htmlType='submit'  disabled={Lang}  className="px-4">
                             {!Lang ? "Login" : "loading..."}
-                          </CButton>
+                          </Button>
                         </CRow>
 
                       </CForm>
                     </>}
                   </CCardBody>
-                  <p className='versions text-center mb-0' style={{ display: "flex", justifyContent: "center", color: "#888", fontSize: "12px" }}>Version: {config?.version}</p>
-
-                  {/* <button onClick={() => window.location.assign("http://localhost:3000/login?username=kaycha420&password=590806Abcd")}>username=nonny420&password=123456</button> */}
+                  <p className='versions text-center mb-0' style={{ display: "flex", justifyContent: "center", color: "#fefefe", fontSize: "12px" }}>Version: {config?.version}</p>
                 </CCard>
               </CCardGroup>
             </CCol>

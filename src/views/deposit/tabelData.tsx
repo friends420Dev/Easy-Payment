@@ -4,42 +4,11 @@ import Apibank from 'src/api/Apibank';
 import moment from 'moment'
 import { getToken } from "../../Token";
 import {
-    CAvatar,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardSubtitle,
-    CCardTitle,
-    CCol,
-    CDropdown,
-    CDropdownItem,
-    CDropdownMenu,
-    CDropdownToggle,
-    CInputGroup,
-    CInputGroupText,
-    CRow,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CLoadingButton,
-    CModalFooter,
-    CModalBody,
-    CModalTitle,
-    CBadge,
-    CModalHeader,
-    CCollapse,
-    CModal,
-    CFormInput,
-    CFormSelect,
-    CDatePicker,
     CSmartTable
 } from '@coreui/react-pro'
 import { Tabs, Divider, message, Card, Tooltip, Flex } from 'antd';
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
 import { Tag } from "antd";
-
 interface Item {
     member_id?: string;
     ref?: string | undefined;
@@ -58,7 +27,6 @@ interface Item {
     status?: string;
     created_at?: string;
 }
-
 interface Column {
     key: string;
     label: string;
@@ -103,7 +71,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
         },
         { key: 'created_at', },
     ]
-
     const getBadge = (status: any) => {
         switch (status) {
             case 'ฝาก':
@@ -131,7 +98,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                 return 'primary'
         }
     }
-
     const getBadge_bank = (bank_id: any) => {
         switch (bank_id) {
             case 1:
@@ -250,7 +216,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                 return ''
         }
     }
-
     const handleCopy = (text: any, item: any) => {
         //itemContext?.getAllMembers()
         setIsData(item)
@@ -329,7 +294,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                             {item?.name_member}
                         </td>
                     ),
-
                     status: (item: Item) => (
                         <td onClick={(e: any) => handleOnclick(item)} style={{ backgroundColor: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
                             <Tag color={getBadgeTags(item?.status)}>{t(item?.status)}</Tag>
@@ -340,7 +304,6 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                             <Tooltip title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
                         </td>
                     ),
-
                 }}
                 // sorterValue={{ column: 'created_at', state: 'desc' }}
                 pagination={{
@@ -378,5 +341,5 @@ export const TabelData = ({ t, itemContext, setVisible, setVisible2, visible2, v
                 onSorterChange={(value: any) => setColumnSorter(value)}
             />
         </>
-    )
+    );
 }

@@ -1,7 +1,5 @@
-import { UpdateBtn } from '../../components/updateBtn/updateBtn'
 import { Tabs, Statistic, message, Divider, Card, Tag, Tooltip, Input, Select, Row, Col } from 'antd';
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
-
 import {
     CCol,
     CRow,
@@ -13,10 +11,7 @@ import {
     CModal,
     CMultiSelect
 } from '@coreui/react-pro'
-import { CIcon } from '@coreui/icons-react';
-import { cilPlus, cilMediaRecord, cilLayers, cilHistory } from '@coreui/icons';
 import React, { useEffect, useRef, useContext, Fragment, useState } from 'react'
-import Moment from 'moment'
 import 'moment/locale/th'
 import { DataContext } from 'src/layout/DefaultLayout';
 import { useTranslation } from 'react-i18next'
@@ -29,7 +24,6 @@ import { LoadingOutlined, CloseOutlined, SyncOutlined, ClockCircleOutlined, Cale
 import Swal from 'sweetalert2'
 import Apiauth from 'src/api/Apiauth';
 import { TableTableSearch } from '../withdrawal/tableDataSearch';
-
 import { getToken } from "../../Token";
 import type { TabsProps, TableProps } from 'antd';
 import { Dayjs } from 'dayjs';
@@ -62,7 +56,6 @@ interface Item {
     status?: string;
     date_creat?: string;
 }
-
 interface Column {
     key: string;
     label: string;
@@ -153,8 +146,6 @@ interface ItemData {
     };
 
 }
-
-
 export const ModelDepositPeddingDetails = ({ setVisible2, visible2, data, t, config, itemContext, setIsData }: Props) => {
     if (!data || data == "") {
         return false
@@ -222,7 +213,7 @@ export const ModelDepositPeddingDetails = ({ setVisible2, visible2, data, t, con
         if (!id) {
             return t("No data")
         }
-        const c: any = itemContext?.bankList?.data?.filter((user: any) => user.id == id);
+        const c: any = itemContext?.bankList?.data?.filter((user: any) => user?.id == id);
         //console.log(admin)
         return c?.length == 0 ? t("No data") : c[0]?.bank_id;
     }
@@ -241,13 +232,12 @@ export const ModelDepositPeddingDetails = ({ setVisible2, visible2, data, t, con
         return filteredMembers?.[0];
     }
     var isMember: any = filterIsMember?.(data?.accnum || "0")
-    // console.log(isMember)
+    
     const items: TabsProps['items'] = [
         {
             key: '1',
             label: t("Details Transaction"),
             children: <CCol sm={12}>
-                {/* <div className="headerprocess text-center" ><i className="fas fa-user"></i> ข้อมูลส่วนตัว</div> */}
                 <div className="containprocess" style={{ padding: "0 20px" }}>
                     <table align="center" className="accountofuser">
                         <tbody>
@@ -490,92 +480,11 @@ const Deposit = () => {
             content: `${msg}`,
         });
     };
-    const columns: Column[] | any = [
-
-        {
-            key: 'userId',
-            label: `${t('userID')}`,
-            _style: { width: '' },
-        },
-        {
-            key: 'FormBankAccount',
-            label: `${t('Bank Account Number')}`,
-            _style: { width: '' },
-            filter: true,
-            sorter: false,
-        },
-        {
-            key: 'Bank',
-            label: `${t('Bank')}`,
-            _style: { width: '' },
-            filter: true,
-            sorter: false,
-        },
-        {
-            key: 'amount',
-            label: `${t('Amount')}`,
-            _style: { width: '' },
-            filter: true,
-            sorter: false,
-        },
-        {
-            key: 'status',
-            label: `${t('Status')}`,
-            _style: { width: '' },
-            filter: (values: any, onChange: any) => {
-                const unique = [...new Set(values)].sort()
-                return (
-                    <CMultiSelect
-                        size="sm"
-                        onChange={(selected: any) => {
-                            const _selected = selected.map((element: any) => {
-                                return element.value
-                            })
-                            onChange((value: string) => {
-                                return Array.isArray(_selected) && _selected.length > 0
-                                    ? _selected.includes(value.toLowerCase())
-                                    : true
-                            })
-                        }}
-                        options={unique.map((element: any) => {
-                            return {
-                                value: element.toLowerCase(),
-                                label: element,
-                            }
-                        })}
-                    />
-                )
-            },
-            sorter: false,
-        },
-        {
-            key: 'Ref',
-            label: `${t('Ref')}`,
-            _style: { width: '' },
-            filter: true,
-            sorter: false,
-        },
-        {
-            key: 'remark',
-            label: `${t('remark')}`,
-            _style: { width: '250px' },
-            filter: true,
-            sorter: false,
-        },
-        {
-            key: 'CreatedAt',
-            label: `${t('Created At')}`,
-            _style: { width: '' },
-            filter: true,
-            sorter: true,
-        },
-
-
-    ];
+   
     const columns2: Column[] | any = [
         {
-            key: 'description',
-            label: `${t('description')}`,
+            key: 'id',
+            label: `${t('Trans ID')}`,
             _style: { width: '' },
             filter: true,
             sorter: false,
@@ -625,41 +534,7 @@ const Deposit = () => {
             sorter: false,
         },
     ];
-    const columnsEmpty: TableProps['columns'] = [
-        {
-            title: `${t('userID')}`,
-            dataIndex: 'userID',
-            //   filters: [{ text: 'filter1', value: 'filter1' }],
-        },
-        {
-            title: `${t('Bank Account Number')}`,
-            dataIndex: 'FormBankAccount',
-        },
-        {
-            title: `${t('Bank')}`,
-            dataIndex: 'Bank',
-        },
-        {
-            title: `${t('Amount')}`,
-            dataIndex: 'Amount',
-        },
-        {
-            title: `${t('status')}`,
-            dataIndex: 'status',
-        },
-        {
-            title: `${t('Ref')}`,
-            dataIndex: 'ref',
-        },
-        {
-            title: `${t('Remark')}`,
-            dataIndex: 'Remark',
-        },
-        {
-            title: `${t('CreatedAt')}`,
-            dataIndex: 'CreatedAt',
-        },
-    ];
+   
     const [isData, setIsData]: any = useState<any>()
     function handleOnclick(item: any) {
         if (item) {
@@ -799,7 +674,6 @@ const Deposit = () => {
     const [columnSorter, setColumnSorter]: any = useState()
     const [loadding, setLoadding] = useState<boolean>(false)
     const [tabActive, setTabActive]: any = useState("1")
-
     function fillterIsMember(acc: any) {
         if (!acc) {
             return false
@@ -807,7 +681,7 @@ const Deposit = () => {
         const c: any = itemContext?.stateMember?.data?.rows?.filter((user: any) => user?.bankAccountNumber == acc);
         return c?.length == 0 ? false : true;
     }
-    //console.log(handleChang)
+    //console.log(fillterIsMember)
     const fetchDatePicker = (event: any) => {
         const offset = (itemContext?.activePage - 1) * itemContext?.itemsPerPage
         let data = {
@@ -1044,8 +918,8 @@ const Deposit = () => {
     }
     function extractWithdrawalInfo(text: any) {
         const prefix = 'รอถอน manual โดย แอดมิน';
-        if (text.startsWith(prefix)) {
-            return `แอดมิน ${getTargetWord(text)} กำลังทำรายการ...`;
+        if (text?.startsWith?.(prefix)) {
+            return `แอดมิน ${getTargetWord?.(text)} กำลังทำรายการ...`;
         } else {
             return <em style={{ color: "#88888880" }}>{t("No data")}</em>;
         }
@@ -1161,10 +1035,10 @@ const Deposit = () => {
                         //console.log(items)
                     }}
                     tableBodyProps={{
-                        className: 'align-middle text-center  font-500',
+                        className: 'align-middle font-500',
                     }}
                     tableProps={{
-                        className: 'add-this-class text-center aninationleft aninationleft',
+                        className: 'add-this-class aninationleft aninationleft',
                         responsive: true,
                         striped: false,
                         hover: true,

@@ -425,6 +425,7 @@ const DefaultLayout = (props: any) => {
             setSpinUpdate(false)
             // let isNow = moment().format('HH:mm:ss')
             // console.log("อัพเดทรายการถอนสำเร็จเมื่อ :" + " " + isNow);
+            gegetdataMerchangs?.()
             localStorage.setItem("recordsWithdraws", res?.data?.data?.count)
             localStorage.setItem("recordsPandingWithdraws", res?.data?.datapanding?.count)
             var o: any = localStorage.getItem("recordsWithdraws")
@@ -1219,7 +1220,7 @@ const DefaultLayout = (props: any) => {
   if (sytem) {
     let data = stateBankGrop?.data
     let i = data?.filter((bank: any) => bank?.isActive === true)
-    sytem.innerHTML = !i[0]?.name ? "No connection" : i[0]?.name == "Bankstandard" ? "PAY888-V2" : i[0]?.name == "Gateway" ? "GATEWAY" : "other"
+    sytem.innerHTML = !i[0]?.name ? "No connection" : i[0]?.name == "Bankstandard" ? "EPAY" : i[0]?.name == "Gateway" ? "GATEWAY" : "other"
   }
   let sendData:any = {
     nofWit: nofWit,

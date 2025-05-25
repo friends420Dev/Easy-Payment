@@ -3,7 +3,8 @@ import config from 'src/config/app.config';
 import Apibank from 'src/api/Apibank';
 import moment from 'moment';
 import {
-    FileDoneOutlined
+    FileDoneOutlined,
+    ClockCircleOutlined
 } from '@ant-design/icons';
 import { getToken } from "../../Token";
 import {
@@ -14,10 +15,11 @@ import { Tabs, Divider, message, Card, Tooltip, Flex, Button } from 'antd';
 import { Tag } from "antd";
 import { FormatTimeAgo } from 'src/helpers/formatTimeAgo';
 type Item = {
-    member_id: any
-    ref: any
-    remark: any
-    nodere: any
+    customer: any
+    logUuid: any
+    refUuid?: any
+    channelName: any
+    note: any
     amount: any
     members: {
         bankId: any
@@ -26,11 +28,25 @@ type Item = {
     }
     name_member: any
     status: any
-    created_at: any
+    eventCreatedAt: any
     transaction_bank: {
         status_pay: any
     }
     uuid: string
+}
+interface Customer {
+    customer?: string
+    customer_uuid: string;
+    partner: string;
+    client_code: string;
+    name: string;
+    search_name: string;
+    account_no: string;
+    memberId: string | null; // memberId อาจเป็น null ได้
+    bank_code: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
 }
 export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, getStatusTransfer, setIsData }: any) => {
     const [columnFilter, setColumnFilter]: any = useState({})
@@ -50,7 +66,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
     };
     const columns = [
         // { key: 'uuid', label: `${t('UUID')}`, _style: { width: '150px' }, },
-        { key: 'member_id', filter: true, sorter: false },
+        { key: 'customer_uuid', label: `${t('Customer UUID')}`, filter: true, sorter: false },
         {
             key: 'BankAccount',
             label: `${t('Bank Account ')}`,
@@ -61,10 +77,9 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
         { key: 'name_member', label: `${t('Name ')}`, _style: { width: '' }, },
         { key: 'amount', },
         { key: 'status', },
-        { key: 'ref', },
-        { key: 'remark', label: `${t('Remark')}`, _style: { width: '150px' }, },
-        { key: 'nodere', label: `${t('Note ')}`, _style: { width: '180px' }, },
-        { key: 'created_at', },
+        { key: 'refUuid', label: `${t('Ref UUID')}`, },
+        { key: 'channelName', label: `${t('Channel ')}`, _style: { width: '180px' }, },
+        { key: 'eventCreatedAt', label: `${t('CreatedAt')}`, },
         { key: 'Advanced', label: `${t('Advanced ')}`, },
     ]
     const getBadgeTags = (status: any) => {
@@ -87,13 +102,14 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 return '#f50'
             case "withdrawal_confirm_queued":
                 return '#3b5999'
+            case "inq_tranfergrop":
+                return 'rgb(103, 58, 183)'
             // return '#673ab7'
 
             default:
                 return '#108ee9'
         }
     }
-
     const getBgTags = (status: any) => {
         switch (status) {
 
@@ -110,6 +126,8 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
             case "processing":
                 return '#e6f4ff'
             case "inq":
+                return '#f9f0ff'
+            case "inq_tranfergrop":
                 return '#f9f0ff'
             default:
                 return ''
@@ -132,7 +150,8 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 return '#1677ff'
             case "inq":
                 return '#531dab'
-
+            case "inq_tranfergrop":
+                return 'rgb(103, 58, 183)'
 
             default:
                 return ''
@@ -203,17 +222,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
             setVisiblem2(!visiblem2)
         }
     }
-    const handleCopy = (text: any, item: any) => {
-        setIsData(item)
-        setVisiblem2(!visiblem2)
-        navigator?.clipboard?.writeText(text)
-            .then(() => {
-                success('Copied : ' + text);
-            })
-            .catch(() => {
-                error('Copied Something went wrong.');
-            });
-    };
+
 
     function formatAccnumID(numberAcc: any) {
         if (numberAcc?.length < 9) {
@@ -251,7 +260,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
 
     function funcTxtNodere(txt: any, status: any) {
         let tx;
-        if (txt == "ถอนโดยระบบออโต้") {
+        if (txt == "ถอนโดยระบบออโต้" || txt == "ถอนออโต้ payonex") {
             tx = 'Auto System'
         } else if (txt == "PayoneX") {
             tx = `Gateway ( ${txt} )`
@@ -266,7 +275,7 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
     }
     function funcColorNodere(txt: any, status: any) {
         let t = getBadgeTags(status);
-        if (txt == "ถอนโดยระบบออโต้") {
+        if (txt == "ถอนโดยระบบออโต้" || txt == "ถอนออโต้ payonex") {
             t = '#2db7f5'
         } else if (txt == "PayoneX") {
             t = `#41e197`
@@ -281,6 +290,28 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
         }
         return t
     }
+    function parseCustomerdata(customerJsonString: string): Customer | null {
+        try {
+            const customerData: Customer = JSON.parse(customerJsonString);
+
+            return customerData
+        } catch (error) {
+            console.error("เกิดข้อผิดพลาดในการแยกวิเคราะห์ข้อมูลลูกค้า:", error);
+            return null;
+        }
+    }
+    const handleCopy = (text: any, item: any) => {
+
+        setIsData(item)
+        setVisiblem2(!visiblem2)
+        navigator?.clipboard?.writeText(text)
+            .then(() => {
+                success('Copied : ' + text);
+            })
+            .catch(() => {
+                error('Copied Something went wrong.');
+            });
+    };
     return (
         <>
             {contextHolder2}
@@ -294,65 +325,61 @@ export const TabelData = ({ t, itemContext, loadding, setVisiblem2, visiblem2, g
                 itemsPerPage={itemContext?.itemsPerPageWit}
                 itemsPerPageSelect
                 scopedColumns={{
-                    member_id: (item: Item) => (
-                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.member_id, item)}>
-                            {item?.member_id}
+                    customer_uuid: (item: Item) => (
+                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} onClick={() => handleCopy(parseCustomerdata?.(item?.customer)?.customer_uuid, item)}>
+                            {parseCustomerdata?.(item?.customer)?.customer_uuid}
                         </td>
                     ),
                     uuid: (item: Item) => (
-                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.uuid, item)}>
+                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} onClick={() => handleCopy(item?.uuid, item)}>
                             {item?.uuid}
                         </td>
                     ),
-                    ref: (item: Item) => (
-                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.ref, item)}>
-                            <Tooltip placement="topLeft" title={item?.ref} >
-                                {item?.ref || <em style={{ color: "#88888880" }}>{t("No data")}</em>}
+                    refUuid: (item: Item) => (
+                        <td className='text-truncate' style={{ maxWidth: "100px", cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} onClick={() => handleCopy(item?.logUuid, item)}>
+                            <Tooltip placement="topLeft" title={item?.refUuid} >
+                                {item?.refUuid || <em style={{ color: "#88888880" }}>{t("No data")}</em>}
                             </Tooltip>
                         </td>
                     ),
-                    remark: (item: Item) => (
-                        <td title={item?.remark} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.remark, item)}>
-                            {item?.remark ? <span >{item?.remark}</span> : <em style={{ color: "#88888880" }}>{t("No data")}</em>}
-                        </td>
-                    ),
-                    nodere: (item: Item) => (
-                        <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={() => handleCopy(item?.nodere, item)}>
-                            <span style={{ color: `${funcColorNodere(item?.nodere, item?.status)}` }}>
-                                {funcTxtNodere(item?.nodere, item?.status)}
+
+                    channelName: (item: Item) => (
+                        <td style={{ cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} onClick={() => handleCopy(item?.note, item)}>
+                            <span style={{ color: `${funcColorNodere(item?.note, item?.status?.toLowerCase())}` }}>
+                                {item?.channelName}
                             </span>
 
                         </td>
                     ),
                     amount: (item: Item) => (
-                        <td onClick={(e: any) => handleOnclick(item)} style={{ fontWeight: "700", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <span style={{ color: `${item?.status == "success" ? '#39f' : getColorTags(item?.status)}` }}>{Intl.NumberFormat().format(item?.amount)}.-</span>
+                        <td onClick={(e: any) => handleOnclick(item)} style={{ fontWeight: "700", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }}>
+                            <span style={{ color: `${item?.status?.toLowerCase() == "success" ? '#39f' : getColorTags(item?.status?.toLowerCase())}` }}>{Intl.NumberFormat().format(item?.amount)}.-</span>
                         </td>
                     ),
                     BankAccount: (item: Item) => (
-                        <td onClick={(e: any) => handleOnclick(item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <b>{getBadge_bank(item?.members?.bankId)}</b>
-                            , {formatAccnumID(item?.members?.bankAccountNumber)}<br />
+                        <td onClick={(e: any) => handleOnclick(item)} style={{ background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }}>
+                            <b>{parseCustomerdata?.(item?.customer)?.bank_code}</b>
+                            , {parseCustomerdata?.(item?.customer)?.account_no}<br />
                         </td>
                     ),
                     name_member: (item: Item) => (
-                        <td onClick={() => handleCopy(item?.name_member, item)} style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} >
-                            {item?.name_member}
+                        <td onClick={() => handleCopy(parseCustomerdata?.(item?.customer)?.name, item)} style={{ cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} >
+                            {parseCustomerdata?.(item?.customer)?.name}
                         </td>
                     ),
                     status: (item: Item) => (
-                        <td onClick={(e: any) => handleOnclick(item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <Tag color={getBadgeTags(item?.status)}>{t(item?.status)}</Tag>
+                        <td onClick={(e: any) => handleOnclick(item)} style={{ background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }}>
+                            <Tag color={getBadgeTags(item?.status?.toLowerCase())} style={{ textTransform: "capitalize" }}>{t(item?.status == "INQ_TRANFERGROP" ? 'INQ_GROUP' : item?.status)}</Tag>
                         </td>
                     ),
                     Advanced: (item: Item) => (
-                        <td onClick={() => getStatusTransfer(item)} style={{ background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }}>
-                            <Tooltip title={`${item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success") ? '' : "เช็คสถานะการโอนเงิน"}`}><Button disabled={item?.remark == "FTOB" || item?.remark == "FTOT" || item?.nodere == "PayoneX" || (item?.status != "success")} shape="circle" icon={<FileDoneOutlined />} /></Tooltip>
+                        <td onClick={() => getStatusTransfer(item)} style={{ background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }}>
+                            <Tooltip title={`${item?.channelName == "FTOB" || item?.channelName == "FTOT" || item?.channelName == "PayoneX" || (item?.channelName?.toLowerCase() != "success") ? '' : "เช็คสถานะการโอนเงิน"}`}><Button disabled={item?.channelName == "FTOB" || item?.channelName == "FTOT" || item?.note == "PayoneX" || (item?.status?.toLowerCase() != "success")} shape="circle" icon={<FileDoneOutlined />} /></Tooltip>
                         </td>
                     ),
-                    created_at: (item: Item) => (
-                        <td style={{ cursor: "copy", background: `${getBgTags(item?.status)}`, color: `${getColorTags(item?.status)}` }} onClick={(e: any) => handleCopy(item?.created_at, item)}>
-                            <Tooltip title={moment(item?.created_at).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.created_at)}</Tooltip>
+                    eventCreatedAt: (item: Item) => (
+                        <td style={{ cursor: "copy", background: `${getBgTags(item?.status?.toLowerCase())}`, color: `${getColorTags(item?.status?.toLowerCase())}` }} onClick={(e: any) => handleCopy(item?.eventCreatedAt, item)}>
+                            <Tooltip title={moment(item?.eventCreatedAt).format("YYYY/MM/DD HH:mm:ss")}>{FormatTimeAgo(item?.eventCreatedAt)}</Tooltip>
                         </td>
                     ),
 

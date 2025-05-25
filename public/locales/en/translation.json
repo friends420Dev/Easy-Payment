@@ -378,6 +378,10 @@
     "สมาชิกใหม่":"สมาชิกใหม่ {{counter}} รายการ",
 
     "Create by": "Listed By",
+    "Recipient Account":"Recipient Account",
+    "Recipient Bank":"Recipient Bank",
+    "Recipient Name":"Recipient Name",
+
     "Instruction":"Instruction manual"
 
 }

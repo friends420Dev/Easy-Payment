@@ -53,9 +53,23 @@ type Props = {
     itemContext?: any
     getBadgeTags: any
 }
-
+interface Customer {
+    customer?: string
+    customer_uuid: string;
+    partner: string;
+    client_code: string;
+    name: string;
+    search_name: string;
+    account_no: string;
+    memberId: string | null; // memberId อาจเป็น null ได้
+    bank_code: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+}
 
 const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, handleCopy, itemContext, getBadgeTags }: Props) => {
+    console.log(data)
     if (!data || data == "") {
         return false
     }
@@ -142,31 +156,10 @@ const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, hand
                 return 'SMBC'
 
             default:
-                return 'No data'
+                return bank_id
         }
     }
-    function fillterDatamerchant(id: any, type: any) {
-        if (!id) {
-            return t("No data")
-        }
-
-        let i = 0
-        if (type == 'merchant') {
-            const c: any = itemContext?.stateMerchang?.data?.filter((user: any) => user.id == id);
-            //console.log(admin)
-            if (c?.length < 0) {
-                return t("No data")
-            }
-            let n: any = c[i]
-
-            return n?.name;
-
-        }
-        const c: any = itemContext?.stateMerchang?.data?.filter((user: any) => user.id == id);
-        //console.log(admin)
-
-        return c?.length > 0 ? c[0]?.name : t("No data");
-    }
+    
     function getTargetStatus(status: any) {
         if (!status) {
             return false
@@ -184,29 +177,6 @@ const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, hand
         const targetWord: any = msg?.split(" ").pop();
         return targetWord
     }
-    function extractWithdrawalInfo(text: any, status: any) {
-        const prefix = 'รอถอน manual โดย แอดมิน';
-        if (text.startsWith(prefix)) {
-            return <>{getTargetStatus(status) ? <>Manual system By <b>{getTargetWord(text)}</b></> : `แอดมิน ${getTargetWord(text)} กำลังทำรายการ...`}</>;
-        } else {
-            return <em style={{ color: "#88888880" }}>{t("No data")}</em>;
-        }
-    }
-    function funcTxtNodere(txt: any, status: any) {
-        let tx;
-        if (txt == "ถอนโดยระบบออโต้") {
-            tx = 'Auto System'
-        } else if (txt == "PayoneX") {
-            tx = `Gateway ( ${txt} )`
-        } else if (txt == "ถอนแบบระบบ manual กรุณาตรวจสอบ และ ยืนยันการถอนอีกครั้ง") {
-            tx = 'Manual System'
-        } else if (txt == "อนุมัติถอน รอดำเนินการ") {
-            tx = `Approved (${status})`
-        } else {
-            tx = extractWithdrawalInfo(txt, status)
-        }
-        return tx
-    }
     function funcColorNodere(txt: any, status: any) {
         let t;
         if (txt == "ถอนโดยระบบออโต้") {
@@ -222,6 +192,17 @@ const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, hand
         }
         return t
     }
+    function parseCustomerdata(customerJsonString: string): Customer | null {
+        try {
+            const customerData: Customer = JSON.parse(customerJsonString);
+
+            return customerData
+        } catch (error) {
+            console.error("เกิดข้อผิดพลาดในการแยกวิเคราะห์ข้อมูลลูกค้า:", error);
+            return null;
+        }
+    }
+    console.log(parseCustomerdata?.(data?.customer)?.bank_code)
     const items: TabsProps['items'] = [
         {
             key: '1',
@@ -236,88 +217,64 @@ const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, hand
                                 <tbody>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("แจ้งทำรายการเมื่อ")} :</td> {" "}
-                                        <td className="item-list" onClick={() => handleCopy(data?.created_at)}>{<Tooltip title={FormatTimeAgo(data?.created_at)}>{moment(data?.created_at).format('DD-MM-YYYY HH:mm:ss')}</Tooltip>}</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.eventCreatedAt)}>{<Tooltip title={FormatTimeAgo(data?.eventCreatedAt)}>{moment(data?.eventCreatedAt).format('DD-MM-YYYY HH:mm:ss')}</Tooltip>}</td>
                                     </tr>
                                     <tr className={`trofaccount ${data?.status == 'success' ? '' : data?.status == 'rejected' ? '' : 'd-none'}`}>
                                         <td className="headeraccount me-3">{t("ทำรายการสำเร็จเมื่อ")} :</td> {" "}
-                                        <td className="item-list" onClick={() => handleCopy(data?.Transaction_withdraws?.created_at)}>{<Tooltip title={FormatTimeAgo(data?.Transaction_withdraws?.created_at)}>{moment(data?.Transaction_withdraws?.created_at).format('DD-MM-YYYY HH:mm:ss')} </Tooltip>}</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.eventUpdatedAt)}>{<Tooltip title={FormatTimeAgo(data?.eventUpdatedAt)}>{moment(data?.eventUpdatedAt).format('DD-MM-YYYY HH:mm:ss')} </Tooltip>}</td>
                                     </tr>
                                     <tr className={`trofaccount ${data?.status == 'success' ? '' : data?.status == 'rejected' ? '' : 'd-none'}`}>
                                         <td className="headeraccount me-3">{t("เฉลี่ยเวลาทำรายการ")} :</td> {" "}
-                                        <td className="item-list">{<Tooltip  title={calculateTimeDifference(new Date(data?.created_at), new Date(data?.Transaction_withdraws?.created_at))}> <span style={{ color: data?.status == "success" ? "#39f": "rgb(245, 34, 45)" }}>{calculateTimeDifference(new Date(data?.created_at), new Date(data?.Transaction_withdraws?.created_at))}</span></Tooltip>}</td>
+                                        <td className="item-list">{<Tooltip title={calculateTimeDifference(new Date(data?.eventUpdatedAt), new Date(data?.eventUpdatedAt))}> <span style={{ color: data?.status == "success" ? "#39f" : "rgb(245, 34, 45)" }}>{calculateTimeDifference(new Date(data?.eventUpdatedAt), new Date(data?.eventUpdatedAt))}</span></Tooltip>}</td>
                                     </tr>
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("UUID")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.uuid)}>{data?.uuid || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
+                                        <td className="headeraccount me-3">{t("Customer UUID")} :</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.customer_uuid)}>{parseCustomerdata?.(data?.customer)?.customer_uuid || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
                                     </tr>
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Ref ")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.ref)}>{data?.ref}</td>
+                                        <td className="headeraccount me-3">{t("Ref UUID")} :</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.refUuid)}>{data?.refUuid}</td>
                                     </tr>
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Transaction Id")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.Transaction_withdraws?.transaction_id)}>{data?.Transaction_withdraws?.transaction_id || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
+                                        <td className="headeraccount me-3">{t("LogUuid")} :</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.logUuid)}>{data?.logUuid || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
                                     </tr>
-
-
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Type ")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.type_option)}>{t(data?.type_option == 'ฝาก' ? "Deposit " : "Withdrawal ")}</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.type)}>{t(data?.type == 'ฝาก' ? "Deposit " : "Withdrawal ")}</td>
                                     </tr>
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Status ")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.status)}><Tag icon={data?.status == "inq" ? <ClockCircleOutlined /> : data?.status == "processing" ? <SyncOutlined spin /> : ""} color={getBadgeTags(data?.status)}>{t(data?.status == "inq" ? "in_Queue" : data?.status)}</Tag></td>
-                                    </tr>
-
-                                    <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Member id")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.member_id)}>{data?.member_id}</td>
+                                        <td className="headeraccount me-3">{t("Recipient Bank")} :</td>
+                                        <td className="item-list" style={{ textTransform: "capitalize" }} onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.bank_code)}> {t(getBadge_bank(parseCustomerdata?.(data?.customer)?.bank_code.toLowerCase()))}</td>
                                     </tr>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Recipient Account")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.Transaction_withdraws?.recipientAccount)}> {data?.Transaction_withdraws?.recipientAccount || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.Transaction_withdraws?.recipientAccount)}> {parseCustomerdata?.(data?.customer)?.account_no || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
                                     </tr>
 
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Recipient Name")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.bankAccountName)}>{data?.members?.bankAccountName}</td>
-                                    </tr>
-                                    <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Recipient Bank")} :</td>
-                                        <td className="item-list" style={{ textTransform: "capitalize" }} onClick={() => handleCopy(data?.members?.bankId)}>{getBadge_bank(data?.members?.bankId)}</td>
-                                    </tr>
-                                    <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Amount ")} :</td>
-                                        <td className="item-list" style={{ color: data?.status == "success" ? "#39f": "rgb(245, 34, 45)" }} onClick={() => handleCopy(data?.amount)}>{!data?.amount ? 0 : Intl.NumberFormat().format(data?.amount)}.-</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.name)}>{parseCustomerdata?.(data?.customer)?.name || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
                                     </tr>
 
-
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Remark ")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.remark)}>{data?.remark ? <span className='text-danger'>{data?.remark}</span> : <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
+                                        <td className="headeraccount me-3">{t("Amount")} :</td>
+                                        <td className="item-list" style={{ color: data?.status == "success" ? "#39f" : "rgb(245, 34, 45)" }} onClick={() => handleCopy(data?.amount)}>{!data?.amount ? 0 : Intl.NumberFormat().format(data?.amount)}.-</td>
+                                    </tr>
+                                    <tr className="trofaccount">
+                                        <td className="headeraccount me-3">{t("Status ")} :</td>
+                                        <td className="item-list" onClick={() => handleCopy(data?.status?.toLowerCase())}><Tag icon={data?.status == "INQ_TRANFERGROP" ? <ClockCircleOutlined /> : data?.status == "PENDING" ? <SyncOutlined spin /> : ""} color={getBadgeTags(data?.status?.toLowerCase())}>{t(data?.status == "INQ_TRANFERGROP" ? "INQ_GROUP" : data?.status)}</Tag></td>
                                     </tr>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Note ")} :</td>
                                         <td className="item-list">
                                             <span style={{ color: `${funcColorNodere(data?.nodere, data?.status)}` }}>
-                                                {funcTxtNodere(data?.nodere, data?.status)}
+                                                {data?.note}
                                             </span>
                                         </td>
                                     </tr>
-
-                                    <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Merchant ID ")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.merchantId)}>{data?.members?.merchantId}</td>
-                                    </tr>
-                                    <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Merchant Name")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.merchantId)}>{fillterDatamerchant(data?.members?.merchantId, "merchant")}</td>
-                                    </tr>
+                                   
                                     <br />
-                                    {/* <tr className="trofaccount">
-                                            <td className="headeraccount me-3" style={{fontWeight:"700"}}>{t("Create by")} :</td>
-                                            <td className="item-list" onClick={() => handleCopy(data?.Admins?.name)} >{t("No data")}</td>
-                                        </tr> */}
                                 </tbody>
                             </table>
                         </div>
@@ -339,34 +296,33 @@ const ModelWithdrawalDetails = ({ visiblem2, setVisiblem2, data, config, t, hand
 
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("USERID")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.userId)}>{data?.members?.userId || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.customer_uuid)}>{parseCustomerdata?.(data?.customer)?.customer_uuid || <span style={{ color: "#88888880" }}>{t("No data")}</span>}</td>
                                     </tr>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Bank Account")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(t(getBadge_bank(data?.members?.bankId)))}> {t(getBadge_bank(data?.members?.bankId))}</td>
+                                        <td className="item-list" onClick={() => handleCopy(t(parseCustomerdata?.(data?.customer)?.bank_code))}> {t(getBadge_bank(parseCustomerdata?.(data?.customer)?.bank_code.toLowerCase()))}</td>
                                     </tr>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Account Number")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.bankAccountNumber)}>{data?.members?.bankAccountNumber}</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.account_no)}>{parseCustomerdata?.(data?.customer)?.account_no}</td>
                                     </tr>
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("Account Name")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.bankAccountName)}>{data?.members?.bankAccountName}</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.name)}>{parseCustomerdata?.(data?.customer)?.name}</td>
                                     </tr>
 
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3">{t("User Status")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.userStatus?.members?.userStatus)}>{data?.members?.userStatus == 1 ? "Active" : "Inactive"}</td>
+                                        <td className="item-list" onClick={() => handleCopy(parseCustomerdata?.(data?.customer)?.status)}><Tag color={parseCustomerdata?.(data?.customer)?.status == "SUCCESS" ? '#52c41a' : '#f5222d'}children={<>{parseCustomerdata?.(data?.customer)?.status == "SUCCESS" ? "Active" : "Inactive"}</>} /></td>
                                     </tr>
-
+                                    
                                     <tr className="trofaccount">
-                                        <td className="headeraccount me-3">{t("Telephone Number")} :</td>
-                                        <td className="item-list" onClick={() => handleCopy(data?.members?.telephoneNumber)} >{!data?.members?.telephoneNumber ? <span style={{ color: "#88888880" }}>{t("No data")}</span> : data?.members?.telephoneNumber}</td>
+                                        <td className="headeraccount me-3">{t("Merchant ")} :</td>
+                                        <td className="item-list"  onClick={() => handleCopy(data?.clientCode)}>{data?.clientCode}</td>
                                     </tr>
-
                                     <tr className="trofaccount">
                                         <td className="headeraccount me-3" style={{ fontWeight: "700" }}>{t("สมัครเมื่อ")} :</td>
-                                        <td className="item-list"><Tooltip title={moment(data?.members?.created_at).format("DD-MM-YYYY HH:mm:ss")}>{FormatTimeAgo(data?.members?.created_at)}</Tooltip></td>
+                                        <td className="item-list"><Tooltip title={moment(parseCustomerdata?.(data?.customer)?.created_at).format("DD-MM-YYYY HH:mm:ss")}>{FormatTimeAgo(parseCustomerdata?.(data?.customer)?.created_at)}</Tooltip></td>
                                     </tr>
                                 </tbody>
                             </table>

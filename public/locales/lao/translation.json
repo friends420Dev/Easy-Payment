@@ -387,5 +387,8 @@
     "สมาชิกใหม่":"สมาชิกใหม่ {{counter}} รายการ",
 
     "Create by": "ເຮັດທຸລະກໍາໂດຍ",
+    "Recipient Account":"ບັນຊີຜູ້ຮັບ",
+    "Recipient Name":"ຊື່ຜູ້ຮັບ",
+    "Recipient Bank":"ທະນາຄານຜູ້ຮັບ",
     "Instruction":"ຄູ່ມືສໍາລັບການໃຊ້ງານ"
 }
